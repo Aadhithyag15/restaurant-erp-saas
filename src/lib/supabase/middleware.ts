@@ -24,6 +24,14 @@ export async function updateSession(request: NextRequest) {
     publicEnv("NEXT_PUBLIC_SUPABASE_URL"),
     publicEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY"),
     {
+      global: {
+        // Middleware runs on every request — it must never be able to hang the
+        // whole site. If Supabase is unreachable for 5s, abort: getUser() then
+        // returns an error, user stays null, and protected routes fail closed
+        // (redirect to /login) instead of stalling.
+        fetch: (input, init) =>
+          fetch(input, { ...init, signal: init?.signal ?? AbortSignal.timeout(5000) }),
+      },
       cookies: {
         getAll() {
           return request.cookies.getAll();
@@ -39,8 +47,9 @@ export async function updateSession(request: NextRequest) {
 
   // IMPORTANT: getUser() (validates the JWT against Supabase), not getSession().
   // Nothing may run between client creation and this call.
-  // TEMPORARY TEST
-  const user = null;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
 
