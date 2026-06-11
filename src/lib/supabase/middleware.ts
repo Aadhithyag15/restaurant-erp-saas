@@ -39,9 +39,8 @@ export async function updateSession(request: NextRequest) {
 
   // IMPORTANT: getUser() (validates the JWT against Supabase), not getSession().
   // Nothing may run between client creation and this call.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // TEMPORARY TEST
+  const user = null;
 
   const { pathname } = request.nextUrl;
 
