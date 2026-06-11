@@ -1,0 +1,41 @@
+# Nightly logical backup of the Supabase database (free tier has NO automatic
+# backups — this workflow is the disaster-recovery plan until Pro).
+#
+# Setup (once):
+#   1. Repo must be PRIVATE (dumps contain customer data).
+#   2. Repo → Settings → Secrets → Actions → add SUPABASE_DB_URL.
+#      Use the **Session pooler** connection string (Supabase → Connect →
+#      Session mode, port 5432) — GitHub runners are IPv4-only and the direct
+#      db host is IPv6.
+#   3. Artifacts are retained 30 days; restore with:
+#        gunzip -c backup.sql.gz | psql "$SUPABASE_DB_URL"
+#
+# Side benefit: the nightly connection counts as activity, which prevents the
+# free-tier project from auto-pausing after 7 idle days.
+
+name: db-backup
+
+on:
+  schedule:
+    - cron: "45 1 * * *" # daily 01:45 UTC
+  workflow_dispatch: # manual run button
+
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+    container: postgres:17 # pg_dump must be >= server major version
+    steps:
+      - name: Dump database
+        env:
+          DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          pg_dump "$DB_URL" --no-owner --no-privileges --schema=public \
+            | gzip > backup.sql.gz
+          ls -lh backup.sql.gz
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: db-backup-${{ github.run_number }}
+          path: backup.sql.gz
+          retention-days: 30

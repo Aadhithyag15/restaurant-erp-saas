@@ -1,0 +1,22 @@
+# dependencies
+/node_modules
+
+# next.js
+/.next/
+/out/
+next-env.d.ts
+
+# cloudflare / opennext
+/.open-next/
+/.wrangler/
+
+# env — secrets never enter git
+.env
+.env.local
+.env*.local
+
+# misc
+.DS_Store
+*.pem
+npm-debug.log*
+*.tsbuildinfo
