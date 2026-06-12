@@ -179,6 +179,41 @@ export type Database = {
         };
         Relationships: [];
       };
+      menu_items: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          category_id: string | null;
+          name: string;
+          sku: string | null;
+          price: number;
+          tax_rate: number;
+          is_available: boolean;
+          description: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          tenant_id: string;
+          category_id?: string | null;
+          name: string;
+          sku?: string | null;
+          price: number;
+          tax_rate?: number;
+          is_available?: boolean;
+          description?: string | null;
+        };
+        Update: {
+          category_id?: string | null;
+          name?: string;
+          sku?: string | null;
+          price?: number;
+          tax_rate?: number;
+          is_available?: boolean;
+          description?: string | null;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
