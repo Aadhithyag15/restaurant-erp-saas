@@ -3,49 +3,18 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  Calculator,
-  ChefHat,
-  CreditCard,
-  FileSpreadsheet,
-  LayoutDashboard,
-  LogOut,
-  Menu,
-  Package,
-  Settings,
-  ShoppingCart,
-  UtensilsCrossed,
-  X,
-} from "lucide-react";
+import { LogOut, Menu, UtensilsCrossed, X } from "lucide-react";
 import { signOut } from "@/lib/actions/auth";
+import { navForRole } from "@/lib/nav";
 import { cn } from "@/lib/utils";
 import type { MemberRole } from "@/types/database";
-
-type NavItem = {
-  label: string;
-  segment: string;
-  icon: React.ComponentType<{ className?: string }>;
-  roles: MemberRole[];
-  phase?: string; // set = not built yet, rendered disabled
-};
-
-const NAV: NavItem[] = [
-  { label: "Dashboard", segment: "dashboard", icon: LayoutDashboard, roles: ["owner", "admin", "manager", "cashier", "kitchen"] },
-  { label: "POS", segment: "pos", icon: ShoppingCart, roles: ["owner", "admin", "manager", "cashier"], phase: "Phase 3" },
-  { label: "Kitchen (KOT)", segment: "kot", icon: ChefHat, roles: ["owner", "admin", "manager", "kitchen"], phase: "Phase 4" },
-  { label: "Inventory", segment: "inventory", icon: Package, roles: ["owner", "admin", "manager"], phase: "Phase 5" },
-  { label: "Accounting", segment: "accounting", icon: Calculator, roles: ["owner", "admin"], phase: "Phase 6" },
-  { label: "Reports", segment: "reports", icon: FileSpreadsheet, roles: ["owner", "admin", "manager"], phase: "Phase 6" },
-  { label: "Billing", segment: "billing", icon: CreditCard, roles: ["owner", "admin"] },
-  { label: "Settings", segment: "settings", icon: Settings, roles: ["owner", "admin"] },
-];
 
 function NavLinks({ slug, role, onNavigate }: { slug: string; role: MemberRole; onNavigate?: () => void }) {
   const pathname = usePathname();
 
   return (
-    <nav className="flex flex-1 flex-col gap-1 p-3">
-      {NAV.filter((item) => item.roles.includes(role)).map((item) => {
+    <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
+      {navForRole(role).map((item) => {
         const href = `/${slug}/${item.segment}`;
         const active = pathname === href || pathname.startsWith(`${href}/`);
 
