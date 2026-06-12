@@ -157,6 +157,28 @@ export type Database = {
         Update: Record<string, never>;
         Relationships: [];
       };
+      menu_categories: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          name: string;
+          sort_order: number;
+          is_active: boolean;
+          created_at: string;
+        };
+        Insert: {
+          tenant_id: string;
+          name: string;
+          sort_order?: number;
+          is_active?: boolean;
+        };
+        Update: {
+          name?: string;
+          sort_order?: number;
+          is_active?: boolean;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
