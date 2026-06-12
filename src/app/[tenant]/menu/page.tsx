@@ -37,7 +37,7 @@ export default async function MenuPage({ params }: { params: Promise<{ tenant: s
       .order("name"),
     supabase
       .from("menu_items")
-      .select("id, category_id, name, sku, price, tax_rate, is_available, description")
+      .select("id, category_id, name, sku, price, tax_rate, is_veg, is_available, description")
       .eq("tenant_id", tenant.id)
       .order("name"),
   ]);

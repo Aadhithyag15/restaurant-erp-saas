@@ -39,7 +39,7 @@ export default async function PosPage({ params }: { params: Promise<{ tenant: st
       .order("name"),
     supabase
       .from("menu_items")
-      .select("id, category_id, name, sku, price, tax_rate, description")
+      .select("id, category_id, name, sku, price, tax_rate, is_veg, description")
       .eq("tenant_id", tenant.id)
       .eq("is_available", true)
       .order("name"),

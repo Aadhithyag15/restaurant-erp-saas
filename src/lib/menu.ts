@@ -20,6 +20,7 @@ export type ItemInput = {
   sku: string | null;
   price: number;
   taxRate: number;
+  isVeg: boolean;
   isAvailable: boolean;
   description: string | null;
 };
@@ -41,6 +42,7 @@ export function parseItemForm(raw: {
   sku?: string;
   price?: string;
   taxRate?: string;
+  isVeg?: string;
   isAvailable?: string;
   description?: string;
 }): ParsedItem {
@@ -76,6 +78,7 @@ export function parseItemForm(raw: {
       sku: sku === "" ? null : sku,
       price: round2(price),
       taxRate: round2(taxRate),
+      isVeg: raw.isVeg === "on" || raw.isVeg === "true",
       isAvailable: raw.isAvailable === "on" || raw.isAvailable === "true",
       description: description === "" ? null : description,
     },

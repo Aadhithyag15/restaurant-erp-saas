@@ -6,6 +6,7 @@ import { BookOpen, Minus, Plus, Search, ShoppingCart, Trash2, X } from "lucide-r
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { VegMark } from "@/components/menu/veg-mark";
 import {
   addToCart,
   cartCount,
@@ -28,6 +29,7 @@ export type PosItem = {
   sku: string | null;
   price: number;
   tax_rate: number;
+  is_veg: boolean;
   description: string | null;
 };
 
@@ -236,7 +238,10 @@ export function PosScreen({
                 onClick={() => onAdd(item)}
                 className="flex min-h-24 flex-col items-start justify-between gap-1 rounded-lg border bg-card p-3 text-left shadow-sm transition-all hover:border-primary/40 hover:shadow active:scale-[0.98]"
               >
-                <span className="line-clamp-2 text-sm font-medium">{item.name}</span>
+                <span className="flex w-full items-start gap-1.5">
+                  <VegMark isVeg={item.is_veg} className="mt-0.5" />
+                  <span className="line-clamp-2 text-sm font-medium">{item.name}</span>
+                </span>
                 <span className="text-sm text-muted-foreground tabular-nums">{formatMoney(item.price, currency)}</span>
               </button>
             ))}

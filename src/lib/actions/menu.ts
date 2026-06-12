@@ -75,6 +75,7 @@ function itemFieldsFrom(formData: FormData) {
     sku: String(formData.get("sku") ?? ""),
     price: String(formData.get("price") ?? ""),
     taxRate: String(formData.get("tax_rate") ?? ""),
+    isVeg: formData.get("is_veg") === null ? undefined : String(formData.get("is_veg")),
     isAvailable: formData.get("is_available") === null ? undefined : String(formData.get("is_available")),
     description: String(formData.get("description") ?? ""),
   };
@@ -93,6 +94,7 @@ export async function createItem(tenantId: string, slug: string, _prev: MenuActi
     sku: input.sku,
     price: input.price,
     tax_rate: input.taxRate,
+    is_veg: input.isVeg,
     is_available: input.isAvailable,
     description: input.description,
   });
@@ -125,6 +127,7 @@ export async function updateItem(
       sku: input.sku,
       price: input.price,
       tax_rate: input.taxRate,
+      is_veg: input.isVeg,
       is_available: input.isAvailable,
       description: input.description,
     })

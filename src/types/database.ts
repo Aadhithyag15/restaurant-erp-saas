@@ -188,6 +188,7 @@ export type Database = {
           sku: string | null;
           price: number;
           tax_rate: number;
+          is_veg: boolean;
           is_available: boolean;
           description: string | null;
           created_at: string;
@@ -200,6 +201,7 @@ export type Database = {
           sku?: string | null;
           price: number;
           tax_rate?: number;
+          is_veg?: boolean;
           is_available?: boolean;
           description?: string | null;
         };
@@ -209,6 +211,7 @@ export type Database = {
           sku?: string | null;
           price?: number;
           tax_rate?: number;
+          is_veg?: boolean;
           is_available?: boolean;
           description?: string | null;
         };

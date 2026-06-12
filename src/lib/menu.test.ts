@@ -37,9 +37,15 @@ describe("parseItemForm", () => {
       sku: "BIR-01",
       price: 249,
       taxRate: 5,
+      isVeg: false,
       isAvailable: true,
       description: null,
     });
+  });
+
+  it("parses the veg flag", () => {
+    expect(inputOf(parseItemForm({ ...valid, isVeg: "on" }))?.isVeg).toBe(true);
+    expect(inputOf(parseItemForm({ ...valid, isVeg: undefined }))?.isVeg).toBe(false);
   });
 
   it("defaults empty tax to 0 and unchecked availability to false", () => {

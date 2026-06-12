@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { VegMark } from "@/components/menu/veg-mark";
 import { createItem, deleteItem, setItemAvailability, updateItem, type MenuActionState } from "@/lib/actions/menu";
 import { formatMoney } from "@/lib/money";
 import { cn } from "@/lib/utils";
@@ -18,6 +19,7 @@ export type MenuItem = {
   sku: string | null;
   price: number;
   tax_rate: number;
+  is_veg: boolean;
   is_available: boolean;
   description: string | null;
 };
@@ -78,10 +80,16 @@ function ItemFields({ categories, item }: { categories: CategoryOption[]; item?:
           className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         />
       </div>
-      <label className="flex items-center gap-2 text-sm sm:col-span-2">
-        <input type="checkbox" name="is_available" defaultChecked={item ? item.is_available : true} className="size-4 accent-primary" />
-        Available on POS
-      </label>
+      <div className="flex flex-wrap gap-x-6 gap-y-2 sm:col-span-2">
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" name="is_veg" defaultChecked={item?.is_veg ?? false} className="size-4 accent-primary" />
+          Vegetarian
+        </label>
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" name="is_available" defaultChecked={item ? item.is_available : true} className="size-4 accent-primary" />
+          Available on POS
+        </label>
+      </div>
     </div>
   );
 }
@@ -173,7 +181,10 @@ function ItemRow({
   return (
     <li className="flex flex-wrap items-center gap-x-4 gap-y-2 py-3">
       <div className="min-w-0 flex-1 basis-48">
-        <p className="truncate text-sm font-medium">{item.name}</p>
+        <p className="flex items-center gap-2 text-sm font-medium">
+          <VegMark isVeg={item.is_veg} />
+          <span className="truncate">{item.name}</span>
+        </p>
         <p className="truncate text-xs text-muted-foreground">
           {categoryName}
           {item.sku ? ` · ${item.sku}` : ""}
