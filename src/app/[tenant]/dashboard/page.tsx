@@ -7,6 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 export const metadata = { title: "Dashboard" };
 
 export default async function DashboardPage({ params }: { params: Promise<{ tenant: string }> }) {
+
   const { tenant: slug } = await params;
   const supabase = await createClient();
 
@@ -15,6 +16,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ tena
     .select("id, name, currency")
     .eq("slug", slug)
     .maybeSingle();
+
   if (!tenant) notFound();
 
   const [{ data: subscription }, { count: staffCount }, { count: outletCount }] = await Promise.all([

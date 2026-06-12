@@ -20,12 +20,14 @@ export default async function TenantLayout({
   children: React.ReactNode;
   params: Promise<{ tenant: string }>;
 }) {
+
   const { tenant: slug } = await params;
   const supabase = await createClient();
 
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
   if (!user) redirect(`/login?next=/${slug}/dashboard`);
 
   const { data: tenant } = await supabase
@@ -33,6 +35,9 @@ export default async function TenantLayout({
     .select("id, name, slug, currency, timezone")
     .eq("slug", slug)
     .maybeSingle();
+
+  
+
   if (!tenant) notFound();
 
   const [{ data: membership }, { data: subscription }] = await Promise.all([
@@ -48,6 +53,8 @@ export default async function TenantLayout({
       .eq("tenant_id", tenant.id)
       .maybeSingle(),
   ]);
+
+  
   if (!membership?.is_active) notFound();
 
   const license = deriveLicense(subscription);
