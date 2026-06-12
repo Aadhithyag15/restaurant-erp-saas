@@ -13,8 +13,10 @@ import {
   lineSubtotal,
   removeFromCart,
   setQuantity,
+  type CartItem,
   type CartLine,
 } from "@/lib/cart";
+import { cartStorageKey, deserializeCart, serializeCart } from "@/lib/cart-storage";
 import { formatMoney } from "@/lib/money";
 import { cn } from "@/lib/utils";
 
@@ -116,6 +118,38 @@ export function PosScreen({
   const [search, setSearch] = React.useState("");
   const [lines, setLines] = React.useState<CartLine[]>([]);
   const [mobileCartOpen, setMobileCartOpen] = React.useState(false);
+  const [hydrated, setHydrated] = React.useState(false);
+
+  // --- Cart persistence (M5) -----------------------------------------------
+  // Restore after mount (SSR-safe), re-anchored to the live menu so stale
+  // prices or deleted items can never resurface from the cache.
+  const itemsById = React.useMemo(() => {
+    const map = new Map<string, CartItem>();
+    for (const i of items) map.set(i.id, { itemId: i.id, name: i.name, price: i.price, taxRate: i.tax_rate });
+    return map;
+  }, [items]);
+
+  React.useEffect(() => {
+    try {
+      setLines(deserializeCart(window.localStorage.getItem(cartStorageKey(slug)), itemsById));
+    } catch {
+      // storage unavailable (private mode etc.) — start with an empty cart
+    }
+    setHydrated(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- restore once per tenant
+  }, [slug]);
+
+  React.useEffect(() => {
+    if (!hydrated) return;
+    try {
+      const key = cartStorageKey(slug);
+      if (lines.length === 0) window.localStorage.removeItem(key);
+      else window.localStorage.setItem(key, serializeCart(lines));
+    } catch {
+      // best-effort persistence; the in-memory cart still works
+    }
+  }, [lines, hydrated, slug]);
+  // --------------------------------------------------------------------------
 
   const query = search.trim().toLowerCase();
   const visible = items.filter((item) => {
