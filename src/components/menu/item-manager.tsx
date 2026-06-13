@@ -129,14 +129,24 @@ function EditItemForm({
   onDone: () => void;
 }) {
   const action = updateItem.bind(null, tenantId, slug, item.id);
-  const [state, formAction, pending] = useActionState<MenuActionState, FormData>(action, null);
+  const [state, formAction, pending] =
+    useActionState<MenuActionState, FormData>(action, null);
+
+  const [submitted, setSubmitted] = React.useState(false);
 
   React.useEffect(() => {
-    if (state === null) onDone();
-  }, [state, onDone]);
-
+    if (submitted && state === null) {
+      onDone();
+  }
+  }, [submitted, state, onDone]);
   return (
-    <form action={formAction} className="flex flex-col gap-3 rounded-md border bg-secondary/30 p-3">
+    <form
+      action={(formData) => {
+        setSubmitted(true);
+       formAction(formData);
+      }}
+      className="flex flex-col gap-3 rounded-md border bg-secondary/30 p-3"
+    >
       <ItemFields categories={categories} item={item} />
       <ErrorText state={state} />
       <div className="flex gap-2">

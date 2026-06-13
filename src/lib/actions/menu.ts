@@ -22,8 +22,15 @@ export async function createCategory(tenantId: string, slug: string, _prev: Menu
   const supabase = await createClient();
   const { error } = await supabase.from("menu_categories").insert({ tenant_id: tenantId, name });
   if (error) {
-    if (error.code === UNIQUE_VIOLATION) return { error: `"${name}" already exists.` };
-    return { error: "Could not create the category — check your permissions and license." };
+    console.log("CATEGORY ERROR:", error);
+
+    if (error.code === UNIQUE_VIOLATION) {
+      return { error: `"${name}" already exists.` };
+    }
+
+    return {
+      error: error.message,
+    };
   }
 
   revalidatePath(`/${slug}/menu`);
