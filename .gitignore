@@ -1,1 +1,19 @@
-node_modules
+# Dependencies
+node_modules/
+
+# Environment variables
+.env.local
+.env
+
+# Next.js build files
+.next/
+
+# TypeScript build files
+tsconfig.tsbuildinfo
+next-env.d.ts
+
+# Supabase temp files
+supabase/.temp/
+
+# Logs
+*.log
