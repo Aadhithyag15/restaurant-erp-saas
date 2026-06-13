@@ -45,5 +45,5 @@ export default async function PosPage({ params }: { params: Promise<{ tenant: st
       .order("name"),
   ]);
 
-  return <PosScreen slug={slug} currency={tenant.currency} categories={categories ?? []} items={items ?? []} />;
+  return <PosScreen slug={slug} tenantId={tenant.id} currency={tenant.currency} categories={categories ?? []} items={items ?? []} />;
 }

@@ -54,3 +54,10 @@ export function cartTotals(lines: CartLine[]): CartTotals {
   const tax = round2(lines.reduce((sum, l) => sum + lineTax(l), 0));
   return { subtotal, tax, total: round2(subtotal + tax) };
 }
+
+export type OrderPayloadLine = { item_id: string; qty: number };
+
+/** Shapes the cart for the place_order RPC — server reprices every line from this. */
+export function toOrderPayload(lines: CartLine[]): OrderPayloadLine[] {
+  return lines.map((l) => ({ item_id: l.itemId, qty: l.qty }));
+}

@@ -8,6 +8,7 @@ import {
   MAX_QTY,
   removeFromCart,
   setQuantity,
+  toOrderPayload,
   type CartLine,
 } from "@/lib/cart";
 
@@ -72,5 +73,19 @@ describe("cart math", () => {
 
   it("returns zeros for an empty cart", () => {
     expect(cartTotals([])).toEqual({ subtotal: 0, tax: 0, total: 0 });
+  });
+});
+
+describe("toOrderPayload", () => {
+  it("maps cart lines to item_id/qty pairs for the place_order RPC", () => {
+    const lines: CartLine[] = [{ ...biryani, qty: 2 }, { ...tea, qty: 1 }];
+    expect(toOrderPayload(lines)).toEqual([
+      { item_id: "a", qty: 2 },
+      { item_id: "b", qty: 1 },
+    ]);
+  });
+
+  it("returns an empty array for an empty cart", () => {
+    expect(toOrderPayload([])).toEqual([]);
   });
 });

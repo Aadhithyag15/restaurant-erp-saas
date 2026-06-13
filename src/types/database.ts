@@ -7,6 +7,7 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 
 export type MemberRole = "owner" | "admin" | "manager" | "cashier" | "kitchen";
 export type SubscriptionStatus = "trialing" | "active" | "past_due" | "canceled" | "expired";
+export type OrderStatus = "pending" | "preparing" | "ready" | "served";
 
 // NOTE: must be a `type`, not an `interface` — interfaces lack the implicit
 // index signature supabase-js's generics require (tables collapse to `never`).
@@ -217,11 +218,65 @@ export type Database = {
         };
         Relationships: [];
       };
+      orders: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          outlet_id: string | null;
+          order_number: number;
+          status: OrderStatus;
+          customer_name: string | null;
+          customer_phone: string | null;
+          source: string;
+          notes: string | null;
+          subtotal: number;
+          tax_total: number;
+          total: number;
+          placed_by: string | null;
+          status_updated_at: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: Record<string, never>; // place_order() RPC only
+        Update: Record<string, never>; // update_order_status() RPC only
+        Relationships: [];
+      };
+      order_items: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          order_id: string;
+          item_id: string | null;
+          name: string;
+          sku: string | null;
+          is_veg: boolean;
+          price: number;
+          tax_rate: number;
+          qty: number;
+          line_subtotal: number;
+          line_tax: number;
+          created_at: string;
+        };
+        Insert: Record<string, never>; // place_order() RPC only
+        Update: Record<string, never>;
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
       create_tenant_with_trial: {
         Args: { p_name: string; p_slug: string };
+        Returns: string;
+      };
+      place_order: {
+        Args: {
+          p_tenant: string;
+          p_items: Json;
+          p_customer_name?: string | null;
+          p_customer_phone?: string | null;
+          p_source?: string;
+          p_notes?: string | null;
+        };
         Returns: string;
       };
       accept_invitation: {
@@ -248,6 +303,7 @@ export type Database = {
     Enums: {
       member_role: MemberRole;
       subscription_status: SubscriptionStatus;
+      order_status: OrderStatus;
     };
     CompositeTypes: Record<string, never>;
   };

@@ -2,11 +2,12 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { BookOpen, Minus, Plus, Search, ShoppingCart, Trash2, X } from "lucide-react";
+import { BookOpen, CheckCircle2, Minus, Plus, Search, ShoppingCart, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { VegMark } from "@/components/menu/veg-mark";
+import { placeOrder } from "@/lib/actions/orders";
 import {
   addToCart,
   cartCount,
@@ -14,6 +15,7 @@ import {
   lineSubtotal,
   removeFromCart,
   setQuantity,
+  toOrderPayload,
   type CartItem,
   type CartLine,
 } from "@/lib/cart";
@@ -36,19 +38,43 @@ export type PosItem = {
 function CartPanel({
   lines,
   currency,
+  lastOrder,
+  placing,
+  orderError,
   onSetQty,
   onRemove,
   onClear,
+  onPlaceOrder,
+  onDismissSuccess,
 }: {
   lines: CartLine[];
   currency: string;
+  lastOrder: { orderNumber: number } | null;
+  placing: boolean;
+  orderError: string | null;
   onSetQty: (itemId: string, qty: number) => void;
   onRemove: (itemId: string) => void;
   onClear: () => void;
+  onPlaceOrder: () => void;
+  onDismissSuccess: () => void;
 }) {
   const totals = cartTotals(lines);
 
   if (lines.length === 0) {
+    if (lastOrder) {
+      return (
+        <div className="flex flex-col items-center gap-3 px-1 py-6 text-center">
+          <CheckCircle2 className="size-8 text-green-600" aria-hidden />
+          <div>
+            <p className="text-base font-semibold">Order #{lastOrder.orderNumber} placed</p>
+            <p className="text-sm text-muted-foreground">Sent to the kitchen.</p>
+          </div>
+          <Button type="button" variant="outline" onClick={onDismissSuccess}>
+            New order
+          </Button>
+        </div>
+      );
+    }
     return <p className="px-1 py-6 text-center text-sm text-muted-foreground">Tap menu items to start a bill.</p>;
   }
 
@@ -94,10 +120,16 @@ function CartPanel({
         </div>
       </dl>
 
-      <Button type="button" disabled title="Order placement arrives with the KOT phase" className="w-full">
-        Place order
+      {orderError ? (
+        <p role="alert" className="text-sm text-destructive">
+          {orderError}
+        </p>
+      ) : null}
+
+      <Button type="button" className="w-full" disabled={placing} onClick={onPlaceOrder}>
+        {placing ? "Placing order…" : "Place order"}
       </Button>
-      <Button type="button" variant="ghost" size="sm" className="w-full text-muted-foreground" onClick={onClear}>
+      <Button type="button" variant="ghost" size="sm" className="w-full text-muted-foreground" disabled={placing} onClick={onClear}>
         <Trash2 aria-hidden />
         Clear cart
       </Button>
@@ -107,11 +139,13 @@ function CartPanel({
 
 export function PosScreen({
   slug,
+  tenantId,
   currency,
   categories,
   items,
 }: {
   slug: string;
+  tenantId: string;
   currency: string;
   categories: PosCategory[];
   items: PosItem[];
@@ -121,6 +155,9 @@ export function PosScreen({
   const [lines, setLines] = React.useState<CartLine[]>([]);
   const [mobileCartOpen, setMobileCartOpen] = React.useState(false);
   const [hydrated, setHydrated] = React.useState(false);
+  const [placing, setPlacing] = React.useState(false);
+  const [orderError, setOrderError] = React.useState<string | null>(null);
+  const [lastOrder, setLastOrder] = React.useState<{ orderNumber: number } | null>(null);
 
   // --- Cart persistence (M5) -----------------------------------------------
   // Restore after mount (SSR-safe), re-anchored to the live menu so stale
@@ -165,11 +202,34 @@ export function PosScreen({
   const count = cartCount(lines);
   const totals = cartTotals(lines);
 
-  const onAdd = (item: PosItem) =>
+  const onAdd = (item: PosItem) => {
+    setLastOrder(null);
+    setOrderError(null);
     setLines((prev) => addToCart(prev, { itemId: item.id, name: item.name, price: item.price, taxRate: item.tax_rate }));
+  };
   const onSetQty = (itemId: string, qty: number) => setLines((prev) => setQuantity(prev, itemId, qty));
   const onRemove = (itemId: string) => setLines((prev) => removeFromCart(prev, itemId));
-  const onClear = () => setLines([]);
+  const onClear = () => {
+    setOrderError(null);
+    setLines([]);
+  };
+  const onDismissSuccess = () => setLastOrder(null);
+
+  const onPlaceOrder = async () => {
+    setOrderError(null);
+    setPlacing(true);
+    try {
+      const result = await placeOrder(tenantId, toOrderPayload(lines));
+      if (!result.ok) {
+        setOrderError(result.error);
+        return;
+      }
+      setLines([]);
+      setLastOrder({ orderNumber: result.orderNumber });
+    } finally {
+      setPlacing(false);
+    }
+  };
 
   if (items.length === 0) {
     return (
@@ -259,7 +319,18 @@ export function PosScreen({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <CartPanel lines={lines} currency={currency} onSetQty={onSetQty} onRemove={onRemove} onClear={onClear} />
+            <CartPanel
+              lines={lines}
+              currency={currency}
+              lastOrder={lastOrder}
+              placing={placing}
+              orderError={orderError}
+              onSetQty={onSetQty}
+              onRemove={onRemove}
+              onClear={onClear}
+              onPlaceOrder={onPlaceOrder}
+              onDismissSuccess={onDismissSuccess}
+            />
           </CardContent>
         </Card>
       </aside>
@@ -277,7 +348,18 @@ export function PosScreen({
                 <X aria-hidden />
               </Button>
             </div>
-            <CartPanel lines={lines} currency={currency} onSetQty={onSetQty} onRemove={onRemove} onClear={onClear} />
+            <CartPanel
+              lines={lines}
+              currency={currency}
+              lastOrder={lastOrder}
+              placing={placing}
+              orderError={orderError}
+              onSetQty={onSetQty}
+              onRemove={onRemove}
+              onClear={onClear}
+              onPlaceOrder={onPlaceOrder}
+              onDismissSuccess={onDismissSuccess}
+            />
           </div>
         ) : (
           <Button type="button" className="mx-auto flex w-full max-w-xl justify-between" onClick={() => setMobileCartOpen(true)}>
