@@ -64,7 +64,7 @@ export default async function TenantLayout({
       <Sidebar slug={tenant.slug} tenantName={tenant.name} role={membership.role} />
       <div className="flex min-w-0 flex-1 flex-col">
         <TrialBanner license={license} slug={tenant.slug} role={membership.role} />
-        <main className="flex-1 p-4 md:p-8">
+        <main className="flex-1 p-4 print:p-0 md:p-8">
           <ExpiredGate expired={!license.isActive} slug={tenant.slug} role={membership.role}>
             {children}
           </ExpiredGate>

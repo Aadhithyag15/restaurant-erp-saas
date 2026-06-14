@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { VegMark } from "@/components/menu/veg-mark";
 import { updateOrderStatus } from "@/lib/actions/orders";
+import { sourceLabel } from "@/lib/orders";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import type { Database, OrderStatus } from "@/types/database";
@@ -62,13 +63,6 @@ function useElapsedLabel(since: string): string {
   }, [since]);
 
   return label;
-}
-
-function sourceLabel(source: string): string {
-  return source
-    .split("_")
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(" ");
 }
 
 function OrderCard({

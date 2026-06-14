@@ -13,7 +13,7 @@ export function TrialBanner({ license, slug, role }: { license: License; slug: s
   return (
     <div
       className={cn(
-        "flex flex-wrap items-center justify-center gap-x-2 gap-y-1 border-b px-4 py-2 text-center text-sm",
+        "flex flex-wrap items-center justify-center gap-x-2 gap-y-1 border-b px-4 py-2 text-center text-sm print:hidden",
         urgent ? "bg-destructive/10 text-destructive" : "bg-secondary text-secondary-foreground",
       )}
     >

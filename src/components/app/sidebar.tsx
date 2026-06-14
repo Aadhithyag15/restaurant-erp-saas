@@ -71,7 +71,7 @@ export function Sidebar({ slug, tenantName, role }: { slug: string; tenantName: 
   return (
     <>
       {/* Mobile top bar */}
-      <header className="flex items-center justify-between border-b bg-sidebar px-4 py-3 md:hidden">
+      <header className="flex items-center justify-between border-b bg-sidebar px-4 py-3 print:hidden md:hidden">
         <div className="flex min-w-0 items-center gap-2 font-semibold">
           <UtensilsCrossed className="size-5 shrink-0" aria-hidden />
           <span className="truncate">{tenantName}</span>
@@ -104,7 +104,7 @@ export function Sidebar({ slug, tenantName, role }: { slug: string; tenantName: 
       ) : null}
 
       {/* Desktop sidebar */}
-      <aside className="hidden w-64 shrink-0 flex-col border-r bg-sidebar md:flex">
+      <aside className="hidden w-64 shrink-0 flex-col border-r bg-sidebar print:hidden md:flex">
         <div className="flex items-center gap-2 border-b px-4 py-4 font-semibold">
           <UtensilsCrossed className="size-5 shrink-0" aria-hidden />
           <span className="truncate">{tenantName}</span>
