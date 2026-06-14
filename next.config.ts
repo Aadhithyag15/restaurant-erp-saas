@@ -4,9 +4,13 @@ import type { NextConfig } from "next";
 // Tailwind emits inline styles, so script-src/style-src need 'unsafe-inline'
 // without a nonce-based setup (a future, middleware-driven hardening step).
 // connect-src allows the Supabase project (REST + Realtime over wss).
+// 'unsafe-eval' is only added in dev: webpack's dev-mode module runtime
+// wraps modules in eval(), which CSP otherwise blocks — breaking all client
+// hydration/interactivity under `next dev`. Production bundles don't use eval.
+const isDev = process.env.NODE_ENV !== "production";
 const csp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self' data:",
