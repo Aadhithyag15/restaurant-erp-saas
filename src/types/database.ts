@@ -60,6 +60,7 @@ export type Database = {
         Row: {
           id: string;
           full_name: string;
+          email: string;
           phone: string | null;
           created_at: string;
         };
@@ -110,7 +111,10 @@ export type Database = {
           created_by?: string | null;
         };
         Update: {
+          role?: MemberRole;
+          token?: string;
           expires_at?: string;
+          accepted_at?: string | null;
         };
         Relationships: [];
       };
@@ -286,6 +290,17 @@ export type Database = {
       accept_invitation: {
         Args: { p_token: string };
         Returns: string;
+      };
+      get_invitation_preview: {
+        Args: { p_token: string };
+        Returns: {
+          tenant_name: string;
+          tenant_slug: string;
+          email: string;
+          role: MemberRole;
+          is_expired: boolean;
+          is_accepted: boolean;
+        }[];
       };
       set_edit_code: {
         Args: { p_tenant: string; p_code: string };

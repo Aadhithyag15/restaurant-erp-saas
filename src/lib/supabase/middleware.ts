@@ -11,7 +11,7 @@ import type { Database } from "@/types/database";
  */
 
 const PUBLIC_EXACT = ["/", "/login", "/signup", "/forgot-password"];
-const PUBLIC_PREFIXES = ["/auth"];
+const PUBLIC_PREFIXES = ["/auth", "/invite"];
 
 function isPublicPath(pathname: string): boolean {
   return PUBLIC_EXACT.includes(pathname) || PUBLIC_PREFIXES.some((p) => pathname.startsWith(p));

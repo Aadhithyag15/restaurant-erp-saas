@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { RenameForm } from "@/components/app/rename-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -57,8 +58,12 @@ export default async function SettingsPage({ params }: { params: Promise<{ tenan
         <CardHeader>
           <CardTitle>Coming soon</CardTitle>
           <CardDescription>
-            Staff invitations, the manager override code, and per-restaurant theming land alongside
-            the POS phase, where they&apos;re first needed.
+            The manager override code and per-restaurant theming land alongside the POS phase, where
+            they&apos;re first needed. Manage your team under{" "}
+            <Link href={`/${tenant.slug}/staff`} className="underline underline-offset-4">
+              Staff
+            </Link>
+            .
           </CardDescription>
         </CardHeader>
       </Card>

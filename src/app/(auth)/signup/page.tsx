@@ -10,14 +10,15 @@ export const metadata = { title: "Create account" };
 export default async function SignupPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; next?: string }>;
 }) {
-  const { error } = await searchParams;
+  const { error, next } = await searchParams;
 
   return (
     <AuthShell title="Create your account" description="14-day free trial. No card required.">
       <form action={signup} className="flex flex-col gap-4">
         <FormNotice error={error} />
+        {next ? <input type="hidden" name="next" value={next} /> : null}
         <div className="grid gap-2">
           <Label htmlFor="full_name">Your name</Label>
           <Input id="full_name" name="full_name" autoComplete="name" required />

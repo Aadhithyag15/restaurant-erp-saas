@@ -1,9 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { safeNext } from "@/lib/safe-next";
+import { siteOrigin } from "@/lib/site";
 
 /**
  * Auth server actions. Errors surface via redirect + searchParams so the
@@ -11,19 +12,9 @@ import { createClient } from "@/lib/supabase/server";
  * Failure messages are intentionally generic — no account enumeration.
  */
 
-async function siteOrigin(): Promise<string> {
-  const h = await headers();
-  return process.env.NEXT_PUBLIC_APP_URL ?? h.get("origin") ?? "http://localhost:3000";
-}
-
 function back(path: string, params: Record<string, string>): never {
   const qs = new URLSearchParams(params).toString();
   redirect(`${path}?${qs}`);
-}
-
-/** Only allow internal redirect targets — never user-supplied absolute URLs. */
-function safeNext(next: unknown): string | null {
-  return typeof next === "string" && next.startsWith("/") && !next.startsWith("//") ? next : null;
 }
 
 export async function login(formData: FormData) {
@@ -45,6 +36,7 @@ export async function signup(formData: FormData) {
   const fullName = String(formData.get("full_name") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
+  const next = safeNext(formData.get("next"));
 
   if (!fullName) back("/signup", { error: "Enter your name." });
   if (!email) back("/signup", { error: "Enter your email." });
@@ -56,12 +48,12 @@ export async function signup(formData: FormData) {
     password,
     options: {
       data: { full_name: fullName },
-      emailRedirectTo: `${await siteOrigin()}/auth/callback?next=/go`,
+      emailRedirectTo: `${await siteOrigin()}/auth/callback?next=${encodeURIComponent(next ?? "/go")}`,
     },
   });
   if (error) back("/signup", { error: "Could not create the account. Try again or use a different email." });
 
-  back("/login", { message: "Check your email to confirm your account, then sign in." });
+  back("/login", { message: "Check your email to confirm your account, then sign in.", ...(next ? { next } : {}) });
 }
 
 export async function forgotPassword(formData: FormData) {
