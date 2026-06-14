@@ -175,22 +175,34 @@ export function KitchenScreen({ tenantId, initialOrders }: { tenantId: string; i
 
   React.useEffect(() => {
     const supabase = createClient();
-    const channel = supabase
-      .channel(`kot:${tenantId}`)
-      .on<OrderRow>(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "orders", filter: `tenant_id=eq.${tenantId}` },
-        (payload) => void handleInsert(payload.new),
-      )
-      .on<OrderRow>(
-        "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "orders", filter: `tenant_id=eq.${tenantId}` },
-        (payload) => handleUpdate(payload.new),
-      )
-      .subscribe();
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    let cancelled = false;
+
+    // The realtime client only authenticates its socket with the user's JWT
+    // once the auth session has loaded from storage; subscribing before that
+    // joins as `anon`, which RLS (orders_select ... to authenticated) then
+    // silently excludes from every postgres_changes broadcast. Waiting for
+    // getSession() ensures the access token is set before we join.
+    void supabase.auth.getSession().then(() => {
+      if (cancelled) return;
+      channel = supabase
+        .channel(`kot:${tenantId}`)
+        .on<OrderRow>(
+          "postgres_changes",
+          { event: "INSERT", schema: "public", table: "orders", filter: `tenant_id=eq.${tenantId}` },
+          (payload) => void handleInsert(payload.new),
+        )
+        .on<OrderRow>(
+          "postgres_changes",
+          { event: "UPDATE", schema: "public", table: "orders", filter: `tenant_id=eq.${tenantId}` },
+          (payload) => handleUpdate(payload.new),
+        )
+        .subscribe();
+    });
 
     return () => {
-      void supabase.removeChannel(channel);
+      cancelled = true;
+      if (channel) void supabase.removeChannel(channel);
     };
   }, [tenantId, handleInsert, handleUpdate]);
 
