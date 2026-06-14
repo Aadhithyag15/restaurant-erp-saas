@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import type { OrderPayloadLine } from "@/lib/cart";
+import type { OrderStatus } from "@/types/database";
 
 export type PlaceOrderResult = { ok: true; orderNumber: number } | { ok: false; error: string };
 
@@ -28,4 +29,23 @@ export async function placeOrder(tenantId: string, items: OrderPayloadLine[]): P
     .maybeSingle();
 
   return { ok: true, orderNumber: order?.order_number ?? 0 };
+}
+
+export type UpdateOrderStatusResult = { ok: true } | { ok: false; error: string };
+
+/**
+ * Advances an order's status via the update_order_status RPC, which
+ * validates the forward-only transition (pending → preparing → ready →
+ * served) and membership server-side.
+ */
+export async function updateOrderStatus(tenantId: string, orderId: string, status: OrderStatus): Promise<UpdateOrderStatusResult> {
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("update_order_status", {
+    p_tenant: tenantId,
+    p_order: orderId,
+    p_status: status,
+  });
+  if (error) return { ok: false, error: error.message };
+
+  return { ok: true };
 }

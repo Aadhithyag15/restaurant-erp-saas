@@ -28,13 +28,18 @@ describe("navigation config", () => {
     expect(segments).not.toContain("menu");
   });
 
-  it("kitchen sees only dashboard and (future) KOT", () => {
+  it("kitchen sees only dashboard and KOT", () => {
     const items = navForRole("kitchen");
     expect(items.map((i) => i.segment)).toEqual(["dashboard", "kot"]);
   });
 
+  it("Kitchen (KOT) is live (no phase badge)", () => {
+    const kot = NAV.find((i) => i.segment === "kot");
+    expect(kot?.phase).toBeUndefined();
+  });
+
   it("unbuilt modules stay phase-gated", () => {
-    for (const segment of ["kot", "inventory", "accounting", "reports"]) {
+    for (const segment of ["inventory", "accounting", "reports"]) {
       expect(NAV.find((i) => i.segment === segment)?.phase, segment).toBeDefined();
     }
   });

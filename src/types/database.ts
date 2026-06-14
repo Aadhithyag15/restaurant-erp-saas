@@ -279,6 +279,10 @@ export type Database = {
         };
         Returns: string;
       };
+      update_order_status: {
+        Args: { p_tenant: string; p_order: string; p_status: OrderStatus };
+        Returns: undefined;
+      };
       accept_invitation: {
         Args: { p_token: string };
         Returns: string;
