@@ -58,7 +58,7 @@ export default async function SettingsPage({ params }: { params: Promise<{ tenan
           <CardTitle>Coming soon</CardTitle>
           <CardDescription>
             Staff invitations, the manager override code, and per-restaurant theming land alongside
-            the POS phase, where they're first needed.
+            the POS phase, where they&apos;re first needed.
           </CardDescription>
         </CardHeader>
       </Card>
