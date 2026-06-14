@@ -29,7 +29,7 @@ export const NAV: NavItem[] = [
   { label: "Kitchen (KOT)", segment: "kot", icon: ChefHat, roles: ["owner", "admin", "manager", "kitchen"] },
   { label: "Orders", segment: "orders", icon: Receipt, roles: ["owner", "admin", "manager", "cashier"] },
   { label: "Staff", segment: "staff", icon: Users, roles: ["owner", "admin"] },
-  { label: "Inventory", segment: "inventory", icon: Package, roles: ["owner", "admin", "manager"], phase: "Phase 5" },
+  { label: "Inventory", segment: "inventory", icon: Package, roles: ["owner", "admin", "manager"] },
   { label: "Accounting", segment: "accounting", icon: Calculator, roles: ["owner", "admin"], phase: "Phase 6" },
   { label: "Reports", segment: "reports", icon: FileSpreadsheet, roles: ["owner", "admin", "manager"], phase: "Phase 6" },
   { label: "Billing", segment: "billing", icon: CreditCard, roles: ["owner", "admin"] },

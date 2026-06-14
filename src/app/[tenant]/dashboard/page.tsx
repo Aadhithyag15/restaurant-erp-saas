@@ -151,7 +151,6 @@ export default async function DashboardPage({ params }: { params: Promise<{ tena
         </CardHeader>
         <CardContent>
           <ol className="list-inside list-decimal space-y-1 text-sm text-muted-foreground">
-            <li>Inventory, SKUs and stock depletion (Phase 5)</li>
             <li>Accounting, reports and PDF/Excel exports (Phase 6)</li>
           </ol>
         </CardContent>
