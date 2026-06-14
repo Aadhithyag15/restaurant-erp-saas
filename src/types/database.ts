@@ -8,6 +8,7 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type MemberRole = "owner" | "admin" | "manager" | "cashier" | "kitchen";
 export type SubscriptionStatus = "trialing" | "active" | "past_due" | "canceled" | "expired";
 export type OrderStatus = "pending" | "preparing" | "ready" | "served";
+export type InventoryTransactionType = "purchase" | "waste" | "adjustment" | "correction" | "sale";
 
 // NOTE: must be a `type`, not an `interface` — interfaces lack the implicit
 // index signature supabase-js's generics require (tables collapse to `never`).
@@ -265,6 +266,75 @@ export type Database = {
         Update: Record<string, never>;
         Relationships: [];
       };
+      ingredients: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          name: string;
+          unit: string;
+          current_stock: number;
+          minimum_stock: number;
+          cost_per_unit: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          tenant_id: string;
+          name: string;
+          unit: string;
+          minimum_stock?: number;
+          cost_per_unit?: number;
+          // current_stock is forced to 0 on insert by trigger — set it via
+          // record_inventory_transaction()/correct_stock().
+        };
+        Update: {
+          name?: string;
+          unit?: string;
+          minimum_stock?: number;
+          cost_per_unit?: number;
+          // current_stock is not directly updatable by clients.
+        };
+        Relationships: [];
+      };
+      inventory_transactions: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          ingredient_id: string;
+          type: InventoryTransactionType;
+          quantity_change: number;
+          resulting_stock: number;
+          unit_cost: number | null;
+          notes: string | null;
+          order_id: string | null;
+          created_by: string | null;
+          created_at: string;
+        };
+        Insert: Record<string, never>; // record_inventory_transaction()/correct_stock()/place_order() only
+        Update: Record<string, never>; // append-only
+        Relationships: [];
+      };
+      menu_item_ingredients: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          menu_item_id: string;
+          ingredient_id: string;
+          quantity: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          tenant_id: string;
+          menu_item_id: string;
+          ingredient_id: string;
+          quantity: number;
+        };
+        Update: {
+          quantity?: number;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -318,11 +388,32 @@ export type Database = {
         Args: { t: string };
         Returns: boolean;
       };
+      record_inventory_transaction: {
+        Args: {
+          p_tenant: string;
+          p_ingredient: string;
+          p_type: InventoryTransactionType;
+          p_quantity_change: number;
+          p_unit_cost?: number | null;
+          p_notes?: string | null;
+        };
+        Returns: undefined;
+      };
+      correct_stock: {
+        Args: {
+          p_tenant: string;
+          p_ingredient: string;
+          p_new_stock: number;
+          p_notes?: string | null;
+        };
+        Returns: undefined;
+      };
     };
     Enums: {
       member_role: MemberRole;
       subscription_status: SubscriptionStatus;
       order_status: OrderStatus;
+      inventory_transaction_type: InventoryTransactionType;
     };
     CompositeTypes: Record<string, never>;
   };
