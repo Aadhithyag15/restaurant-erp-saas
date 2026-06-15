@@ -44,9 +44,13 @@ describe("navigation config", () => {
     expect(inventory?.roles).toEqual(["owner", "admin", "manager"]);
   });
 
-  it("unbuilt modules stay phase-gated", () => {
-    for (const segment of ["accounting", "reports"]) {
-      expect(NAV.find((i) => i.segment === segment)?.phase, segment).toBeDefined();
-    }
+  it("Accounting and Reports are live (no phase badge)", () => {
+    const accounting = NAV.find((i) => i.segment === "accounting");
+    expect(accounting?.phase).toBeUndefined();
+    expect(accounting?.roles).toEqual(["owner", "admin"]);
+
+    const reports = NAV.find((i) => i.segment === "reports");
+    expect(reports?.phase).toBeUndefined();
+    expect(reports?.roles).toEqual(["owner", "admin", "manager"]);
   });
 });

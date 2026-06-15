@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { CalendarClock, ChefHat, IndianRupee, Receipt, Store, TrendingUp, Users } from "lucide-react";
+import { Calculator, CalendarClock, CalendarRange, ChefHat, IndianRupee, ListOrdered, Receipt, Store, TrendingUp, Users } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FadeIn } from "@/components/motion/fade-in";
 import { StatCard } from "@/components/dashboard/stat-card";
@@ -33,8 +33,10 @@ export default async function DashboardPage({ params }: { params: Promise<{ tena
   const today = todayInTimeZone(tenant.timezone);
   const { start: todayStart, end: todayEnd } = localDayRangeUtc(today, tenant.timezone);
   const weekStart = new Date(new Date(todayStart).getTime() - 6 * 24 * 60 * 60 * 1000).toISOString();
+  const monthStartDate = `${today.slice(0, 7)}-01`;
+  const { start: monthStart } = localDayRangeUtc(monthStartDate, tenant.timezone);
 
-  const [{ data: subscription }, { count: staffCount }, { count: outletCount }, { data: recentOrders }, { count: activeKitchenCount }] = await Promise.all([
+  const [{ data: subscription }, { count: staffCount }, { count: outletCount }, { data: recentOrders }, { count: activeKitchenCount }, { data: monthOrders }] = await Promise.all([
     supabase
       .from("subscriptions")
       .select("status, trial_ends_at, current_period_end")
@@ -44,6 +46,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ tena
     supabase.from("outlets").select("id", { count: "exact", head: true }).eq("tenant_id", tenant.id).eq("is_active", true),
     supabase.from("orders").select("total, created_at, status").eq("tenant_id", tenant.id).gte("created_at", weekStart).lt("created_at", todayEnd),
     supabase.from("orders").select("id", { count: "exact", head: true }).eq("tenant_id", tenant.id).in("status", OPEN_KITCHEN_STATUSES),
+    supabase.from("orders").select("total").eq("tenant_id", tenant.id).gte("created_at", monthStart).lt("created_at", todayEnd),
   ]);
 
   const license = deriveLicense(subscription);
@@ -52,6 +55,11 @@ export default async function DashboardPage({ params }: { params: Promise<{ tena
   const todaysOrders = allRecent.filter((o) => o.created_at >= todayStart);
   const todaysSales = todaysOrders.reduce((sum, o) => sum + o.total, 0);
   const weekRevenue = allRecent.reduce((sum, o) => sum + o.total, 0);
+
+  const monthlyOrders = monthOrders ?? [];
+  const monthlySales = monthlyOrders.reduce((sum, o) => sum + o.total, 0);
+  const monthlyOrderCount = monthlyOrders.length;
+  const avgOrderValue = monthlyOrderCount > 0 ? monthlySales / monthlyOrderCount : 0;
 
   const revenueSeries = Array.from({ length: 7 }, (_, i) => {
     const dateStr = shiftDateString(today, -(6 - i));
@@ -108,13 +116,42 @@ export default async function DashboardPage({ params }: { params: Promise<{ tena
           delay={0.1}
         />
         <StatCard
-          label="Revenue (7 days)"
+          label="Weekly sales"
           value={weekRevenue}
           currency={tenant.currency}
           icon={<TrendingUp className="size-4" aria-hidden />}
           tone="success"
           description={`across ${allRecent.length} order${allRecent.length === 1 ? "" : "s"}`}
           delay={0.15}
+        />
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <StatCard
+          label="Monthly sales"
+          value={monthlySales}
+          currency={tenant.currency}
+          icon={<CalendarRange className="size-4" aria-hidden />}
+          tone="primary"
+          description={`month to date, ${today.slice(0, 7)}`}
+          delay={0.18}
+        />
+        <StatCard
+          label="Order count"
+          value={monthlyOrderCount}
+          icon={<ListOrdered className="size-4" aria-hidden />}
+          tone="muted"
+          description="orders this month"
+          delay={0.21}
+        />
+        <StatCard
+          label="Average order value"
+          value={avgOrderValue}
+          currency={tenant.currency}
+          icon={<Calculator className="size-4" aria-hidden />}
+          tone="muted"
+          description="this month"
+          delay={0.24}
         />
       </div>
 
@@ -192,12 +229,14 @@ export default async function DashboardPage({ params }: { params: Promise<{ tena
         <Card>
           <CardHeader>
             <CardTitle>What&apos;s next</CardTitle>
-            <CardDescription>Your restaurant is live. Upcoming milestones on the build plan:</CardDescription>
+            <CardDescription>Your restaurant is live and fully built out.</CardDescription>
           </CardHeader>
           <CardContent>
-            <ol className="list-inside list-decimal space-y-1 text-sm text-muted-foreground">
-              <li>Accounting, reports and PDF/Excel exports (Phase 6)</li>
-            </ol>
+            <p className="text-sm text-muted-foreground">
+              All planned phases — KOT, staff, orders, inventory, and accounting &amp; reports — are complete. Explore the{" "}
+              <span className="font-medium text-foreground">Reports</span> and{" "}
+              <span className="font-medium text-foreground">Accounting</span> sections to review sales and close out each day.
+            </p>
           </CardContent>
         </Card>
       </FadeIn>

@@ -23,7 +23,9 @@ import {
 } from "@/lib/cart";
 import { cartStorageKey, deserializeCart, serializeCart } from "@/lib/cart-storage";
 import { formatMoney } from "@/lib/money";
+import { PAYMENT_METHODS, PAYMENT_METHOD_LABELS } from "@/lib/orders";
 import { cn } from "@/lib/utils";
+import type { PaymentMethod } from "@/types/database";
 
 export type PosCategory = { id: string; name: string };
 export type PosItem = {
@@ -88,6 +90,28 @@ function FoodCard({ item, currency, justAdded, onAdd }: { item: PosItem; currenc
   );
 }
 
+function PaymentMethodPicker({ value, onChange }: { value: PaymentMethod; onChange: (method: PaymentMethod) => void }) {
+  return (
+    <div role="radiogroup" aria-label="Payment method" className="flex flex-wrap gap-2">
+      {PAYMENT_METHODS.map((method) => (
+        <button
+          key={method}
+          type="button"
+          role="radio"
+          aria-checked={value === method}
+          onClick={() => onChange(method)}
+          className={cn(
+            "rounded-full border px-3 py-1 text-xs font-medium transition-all",
+            value === method ? "border-primary bg-primary text-primary-foreground shadow-sm" : "bg-background hover:bg-accent",
+          )}
+        >
+          {PAYMENT_METHOD_LABELS[method]}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 function CartCount({ count }: { count: number }) {
   return (
     <motion.span key={count} initial={{ scale: 1.3 }} animate={{ scale: 1 }} transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }} className="tabular-nums">
@@ -102,6 +126,8 @@ function CartPanel({
   lastOrder,
   placing,
   orderError,
+  paymentMethod,
+  onPaymentMethodChange,
   onSetQty,
   onRemove,
   onClear,
@@ -113,6 +139,8 @@ function CartPanel({
   lastOrder: { orderNumber: number } | null;
   placing: boolean;
   orderError: string | null;
+  paymentMethod: PaymentMethod;
+  onPaymentMethodChange: (method: PaymentMethod) => void;
   onSetQty: (itemId: string, qty: number) => void;
   onRemove: (itemId: string) => void;
   onClear: () => void;
@@ -193,6 +221,11 @@ function CartPanel({
         </div>
       </dl>
 
+      <div>
+        <p className="mb-1.5 text-xs font-medium text-muted-foreground">Payment method</p>
+        <PaymentMethodPicker value={paymentMethod} onChange={onPaymentMethodChange} />
+      </div>
+
       {orderError ? (
         <p role="alert" className="text-sm text-destructive">
           {orderError}
@@ -230,6 +263,7 @@ export function PosScreen({
   const [hydrated, setHydrated] = React.useState(false);
   const [placing, setPlacing] = React.useState(false);
   const [orderError, setOrderError] = React.useState<string | null>(null);
+  const [paymentMethod, setPaymentMethod] = React.useState<PaymentMethod>("cash");
   const [lastOrder, setLastOrder] = React.useState<{ orderNumber: number } | null>(null);
   const [justAddedId, setJustAddedId] = React.useState<string | null>(null);
 
@@ -307,7 +341,7 @@ export function PosScreen({
     setOrderError(null);
     setPlacing(true);
     try {
-      const result = await placeOrder(tenantId, toOrderPayload(lines));
+      const result = await placeOrder(tenantId, toOrderPayload(lines), paymentMethod);
       if (!result.ok) {
         setOrderError(result.error);
         return;
@@ -317,7 +351,7 @@ export function PosScreen({
     } finally {
       setPlacing(false);
     }
-  }, [tenantId, lines]);
+  }, [tenantId, lines, paymentMethod]);
 
   // --- Keyboard shortcuts ----------------------------------------------------
   // "/" focuses search, Esc clears search or closes the mobile cart, 1-9
@@ -462,6 +496,8 @@ export function PosScreen({
               lastOrder={lastOrder}
               placing={placing}
               orderError={orderError}
+              paymentMethod={paymentMethod}
+              onPaymentMethodChange={setPaymentMethod}
               onSetQty={onSetQty}
               onRemove={onRemove}
               onClear={onClear}
@@ -522,6 +558,8 @@ export function PosScreen({
                 lastOrder={lastOrder}
                 placing={placing}
                 orderError={orderError}
+                paymentMethod={paymentMethod}
+                onPaymentMethodChange={setPaymentMethod}
                 onSetQty={onSetQty}
                 onRemove={onRemove}
                 onClear={onClear}

@@ -4,7 +4,7 @@
  * authority on data access and lifecycle transitions — these helpers are
  * purely cosmetic or for validating URL query params.
  */
-import type { OrderStatus } from "@/types/database";
+import type { OrderStatus, PaymentMethod } from "@/types/database";
 
 export const ORDER_STATUSES: OrderStatus[] = ["pending", "preparing", "ready", "served"];
 
@@ -20,6 +20,16 @@ export const ORDER_STATUS_BADGE_CLASS: Record<OrderStatus, string> = {
   preparing: "bg-warning/15 text-warning",
   ready: "bg-success/15 text-success",
   served: "border border-input text-muted-foreground",
+};
+
+export const PAYMENT_METHODS: PaymentMethod[] = ["cash", "card", "upi", "wallet", "other"];
+
+export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
+  cash: "Cash",
+  card: "Card",
+  upi: "UPI",
+  wallet: "Wallet",
+  other: "Other",
 };
 
 export const ORDERS_PAGE_SIZE = 20;

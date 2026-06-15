@@ -11,13 +11,16 @@ const PADDING = 8;
 export function RevenueTrendChart({
   data,
   currency,
+  ariaLabel = "Revenue over the last 7 days",
 }: {
   data: { label: string; value: number }[];
   currency: string;
+  ariaLabel?: string;
 }) {
   const prefersReducedMotion = useReducedMotion();
   const max = Math.max(1, ...data.map((d) => d.value));
   const stepX = data.length > 1 ? (CHART_WIDTH - PADDING * 2) / (data.length - 1) : 0;
+  const labelStep = Math.max(1, Math.ceil(data.length / 8));
 
   const points = data.map((d, i) => {
     const x = PADDING + i * stepX;
@@ -35,7 +38,7 @@ export function RevenueTrendChart({
         className="h-32 w-full"
         preserveAspectRatio="none"
         role="img"
-        aria-label="Revenue over the last 7 days"
+        aria-label={ariaLabel}
       >
         <defs>
           <linearGradient id="revenue-gradient" x1="0" y1="0" x2="0" y2="1">
@@ -78,8 +81,8 @@ export function RevenueTrendChart({
         ))}
       </svg>
       <div className="mt-2 flex justify-between text-xs text-muted-foreground">
-        {points.map((p) => (
-          <span key={p.label}>{p.label}</span>
+        {points.map((p, i) => (
+          <span key={`${p.label}-${i}`}>{i % labelStep === 0 || i === points.length - 1 ? p.label : ""}</span>
         ))}
       </div>
     </div>

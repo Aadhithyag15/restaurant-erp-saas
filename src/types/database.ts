@@ -9,6 +9,7 @@ export type MemberRole = "owner" | "admin" | "manager" | "cashier" | "kitchen";
 export type SubscriptionStatus = "trialing" | "active" | "past_due" | "canceled" | "expired";
 export type OrderStatus = "pending" | "preparing" | "ready" | "served";
 export type InventoryTransactionType = "purchase" | "waste" | "adjustment" | "correction" | "sale";
+export type PaymentMethod = "cash" | "card" | "upi" | "wallet" | "other";
 
 // NOTE: must be a `type`, not an `interface` — interfaces lack the implicit
 // index signature supabase-js's generics require (tables collapse to `never`).
@@ -237,6 +238,7 @@ export type Database = {
           subtotal: number;
           tax_total: number;
           total: number;
+          payment_method: PaymentMethod;
           placed_by: string | null;
           status_updated_at: string;
           created_at: string;
@@ -335,6 +337,38 @@ export type Database = {
         };
         Relationships: [];
       };
+      daily_closings: {
+        Row: {
+          id: string;
+          tenant_id: string;
+          outlet_id: string | null;
+          closing_date: string;
+          opening_cash: number;
+          closing_cash: number;
+          cash_refunds: number;
+          notes: string | null;
+          closed_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          tenant_id: string;
+          outlet_id?: string | null;
+          closing_date: string;
+          opening_cash?: number;
+          closing_cash?: number;
+          cash_refunds?: number;
+          notes?: string | null;
+          closed_by?: string | null;
+        };
+        Update: {
+          opening_cash?: number;
+          closing_cash?: number;
+          cash_refunds?: number;
+          notes?: string | null;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: {
@@ -350,6 +384,7 @@ export type Database = {
           p_customer_phone?: string | null;
           p_source?: string;
           p_notes?: string | null;
+          p_payment_method?: string;
         };
         Returns: string;
       };

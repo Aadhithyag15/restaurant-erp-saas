@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import type { OrderPayloadLine } from "@/lib/cart";
-import type { OrderStatus } from "@/types/database";
+import type { OrderStatus, PaymentMethod } from "@/types/database";
 
 export type PlaceOrderResult = { ok: true; orderNumber: number } | { ok: false; error: string };
 
@@ -11,13 +11,14 @@ export type PlaceOrderResult = { ok: true; orderNumber: number } | { ok: false; 
  * the live menu (client totals are display-only) and assigns the per-tenant
  * order number. Returns that number for the cashier's in-place confirmation.
  */
-export async function placeOrder(tenantId: string, items: OrderPayloadLine[]): Promise<PlaceOrderResult> {
+export async function placeOrder(tenantId: string, items: OrderPayloadLine[], paymentMethod: PaymentMethod = "cash"): Promise<PlaceOrderResult> {
   if (items.length === 0) return { ok: false, error: "Cart is empty." };
 
   const supabase = await createClient();
   const { data: orderId, error } = await supabase.rpc("place_order", {
     p_tenant: tenantId,
     p_items: items,
+    p_payment_method: paymentMethod,
   });
   if (error) return { ok: false, error: error.message };
 
