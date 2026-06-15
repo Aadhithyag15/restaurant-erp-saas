@@ -4,6 +4,7 @@ import * as React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FadeIn } from "@/components/motion/fade-in";
 import { AnimatedCounter } from "@/components/motion/animated-counter";
+import { formatMoney } from "@/lib/money";
 import { cn } from "@/lib/utils";
 
 const TONE_CLASSES = {
@@ -17,7 +18,7 @@ export function StatCard({
   icon,
   label,
   value,
-  format,
+  currency,
   description,
   tone = "muted",
   delay = 0,
@@ -25,11 +26,13 @@ export function StatCard({
   icon?: React.ReactNode;
   label: string;
   value: number;
-  format?: (value: number) => string;
+  currency?: string;
   description?: React.ReactNode;
   tone?: keyof typeof TONE_CLASSES;
   delay?: number;
 }) {
+  const format = currency ? (v: number) => formatMoney(v, currency) : undefined;
+
   return (
     <FadeIn delay={delay}>
       <Card className="h-full">

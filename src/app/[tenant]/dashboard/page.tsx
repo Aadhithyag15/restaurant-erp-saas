@@ -7,7 +7,6 @@ import { RevenueTrendChart } from "@/components/dashboard/revenue-trend-chart";
 import { OrderStatusBreakdown } from "@/components/dashboard/order-status-breakdown";
 import { RadialGauge } from "@/components/dashboard/radial-gauge";
 import { deriveLicense } from "@/lib/license";
-import { formatMoney } from "@/lib/money";
 import { createClient } from "@/lib/supabase/server";
 import { localDayRangeUtc, shiftDateString, todayInTimeZone } from "@/lib/timezone";
 import { ORDER_STATUSES } from "@/lib/orders";
@@ -86,7 +85,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ tena
         <StatCard
           label="Today's sales"
           value={todaysSales}
-          format={(v) => formatMoney(v, tenant.currency)}
+          currency={tenant.currency}
           icon={<IndianRupee className="size-4" aria-hidden />}
           tone="primary"
           description={`across ${todaysOrders.length} order${todaysOrders.length === 1 ? "" : "s"}`}
@@ -111,7 +110,7 @@ export default async function DashboardPage({ params }: { params: Promise<{ tena
         <StatCard
           label="Revenue (7 days)"
           value={weekRevenue}
-          format={(v) => formatMoney(v, tenant.currency)}
+          currency={tenant.currency}
           icon={<TrendingUp className="size-4" aria-hidden />}
           tone="success"
           description={`across ${allRecent.length} order${allRecent.length === 1 ? "" : "s"}`}
