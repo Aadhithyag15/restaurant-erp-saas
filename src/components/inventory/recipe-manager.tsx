@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { createRecipeLine, deleteRecipeLine, updateRecipeLine, type InventoryActionState } from "@/lib/actions/inventory";
 import { INVENTORY_UNIT_LABELS, type InventoryUnit } from "@/lib/inventory";
 
@@ -77,7 +78,7 @@ function RecipeLineRow({ tenantId, slug, line, ingredient }: { tenantId: string;
   const unitLabel = ingredient ? (INVENTORY_UNIT_LABELS[ingredient.unit as InventoryUnit] ?? ingredient.unit) : "";
 
   return (
-    <li className="flex flex-wrap items-center gap-3 py-2">
+    <li className="flex flex-wrap items-center gap-3 rounded-lg px-2 py-2.5 transition-colors hover:bg-accent/50">
       <span className="min-w-0 flex-1 basis-40 truncate text-sm font-medium">{ingredient?.name ?? "Unknown ingredient"}</span>
       <form action={formAction} className="flex items-center gap-2">
         <Input name="quantity" type="number" inputMode="decimal" step="0.001" min="0" defaultValue={line.quantity} className="h-8 w-24" aria-label={`Quantity of ${ingredient?.name ?? "ingredient"}`} />
@@ -150,9 +151,12 @@ export function RecipeManager({
                 {linesForItem.length === 0 ? (
                   <p className="text-sm text-muted-foreground">No ingredients assigned yet.</p>
                 ) : (
-                  <ul className="divide-y">
-                    {linesForItem.map((line) => (
-                      <RecipeLineRow key={line.id} tenantId={tenantId} slug={slug} line={line} ingredient={ingredientsById.get(line.ingredient_id)} />
+                  <ul className="flex flex-col">
+                    {linesForItem.map((line, i) => (
+                      <React.Fragment key={line.id}>
+                        {i > 0 ? <Separator /> : null}
+                        <RecipeLineRow tenantId={tenantId} slug={slug} line={line} ingredient={ingredientsById.get(line.ingredient_id)} />
+                      </React.Fragment>
                     ))}
                   </ul>
                 )}

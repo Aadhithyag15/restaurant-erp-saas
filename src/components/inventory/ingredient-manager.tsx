@@ -2,11 +2,14 @@
 
 import * as React from "react";
 import { useActionState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { ClipboardList, Pencil, Plus, Trash2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import {
   correctStock,
   createIngredient,
@@ -272,58 +275,74 @@ function IngredientRowItem({ tenantId, slug, currency, ingredient }: { tenantId:
   const low = isLowStock(ingredient);
   const unitLabel = INVENTORY_UNIT_LABELS[ingredient.unit as InventoryUnit] ?? ingredient.unit;
 
-  if (mode === "edit") {
-    return (
-      <li className="py-3">
-        <EditIngredientForm tenantId={tenantId} slug={slug} ingredient={ingredient} onDone={onDone} />
-      </li>
-    );
-  }
-
-  if (mode === "stock") {
-    return (
-      <li className="flex flex-col gap-2 py-3">
-        <p className="text-sm font-medium">{ingredient.name}</p>
-        <StockMovementForm tenantId={tenantId} slug={slug} ingredient={ingredient} onDone={onDone} />
-      </li>
-    );
-  }
-
   return (
-    <li className="flex flex-wrap items-center gap-x-4 gap-y-2 py-3">
-      <div className="min-w-0 flex-1 basis-48">
-        <p className="truncate text-sm font-medium">{ingredient.name}</p>
-        <p className="truncate text-xs text-muted-foreground">
-          {formatMoney(ingredient.cost_per_unit, currency)} / {unitLabel} · value {formatMoney(stockValue(ingredient), currency)}
-        </p>
-      </div>
-      <div className="text-right text-sm tabular-nums">
-        <p className={cn("font-medium", low ? "text-destructive" : undefined)}>
-          {ingredient.current_stock} {unitLabel}
-        </p>
-        <p className="text-xs text-muted-foreground">min {ingredient.minimum_stock}</p>
-      </div>
-      {low ? (
-        <span className="rounded-full border border-destructive/30 bg-destructive/10 px-2.5 py-0.5 text-xs font-medium text-destructive">Low stock</span>
-      ) : null}
-      <span className="flex shrink-0 items-center gap-1">
-        <Button type="button" size="icon" variant="ghost" onClick={() => setMode("stock")} aria-label={`Update stock for ${ingredient.name}`} title="Record stock movement / correction">
-          <ClipboardList aria-hidden />
-        </Button>
-        <Button type="button" size="icon" variant="ghost" onClick={() => setMode("edit")} aria-label={`Edit ${ingredient.name}`}>
-          <Pencil aria-hidden />
-        </Button>
-        <form
-          action={deleteAction}
-          onSubmit={(e) => {
-            if (!window.confirm(`Delete "${ingredient.name}"? This cannot be undone and removes it from any recipes.`)) e.preventDefault();
-          }}
-        >
-          <Button type="submit" size="icon" variant="ghost" className="text-destructive hover:text-destructive" aria-label={`Delete ${ingredient.name}`}>
-            <Trash2 aria-hidden />
+    <li className="flex flex-col gap-2 rounded-lg px-2 py-3 transition-colors hover:bg-accent/50">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <div className="min-w-0 flex-1 basis-48">
+          <p className="truncate text-sm font-medium">{ingredient.name}</p>
+          <p className="truncate text-xs text-muted-foreground">
+            {formatMoney(ingredient.cost_per_unit, currency)} / {unitLabel} · value {formatMoney(stockValue(ingredient), currency)}
+          </p>
+        </div>
+        <div className="text-right text-sm tabular-nums">
+          <p className={cn("font-medium", low ? "text-destructive" : undefined)}>
+            {ingredient.current_stock} {unitLabel}
+          </p>
+          <p className="text-xs text-muted-foreground">min {ingredient.minimum_stock}</p>
+        </div>
+        {low ? <Badge variant="destructive">Low stock</Badge> : null}
+        <span className="flex shrink-0 items-center gap-1">
+          <Button
+            type="button"
+            size="icon"
+            variant="ghost"
+            onClick={() => setMode((m) => (m === "stock" ? "view" : "stock"))}
+            aria-label={`Update stock for ${ingredient.name}`}
+            title="Record stock movement / correction"
+          >
+            <ClipboardList aria-hidden />
           </Button>
-        </form>
-      </span>
+          <Button type="button" size="icon" variant="ghost" onClick={() => setMode((m) => (m === "edit" ? "view" : "edit"))} aria-label={`Edit ${ingredient.name}`}>
+            <Pencil aria-hidden />
+          </Button>
+          <form
+            action={deleteAction}
+            onSubmit={(e) => {
+              if (!window.confirm(`Delete "${ingredient.name}"? This cannot be undone and removes it from any recipes.`)) e.preventDefault();
+            }}
+          >
+            <Button type="submit" size="icon" variant="ghost" className="text-destructive hover:text-destructive" aria-label={`Delete ${ingredient.name}`}>
+              <Trash2 aria-hidden />
+            </Button>
+          </form>
+        </span>
+      </div>
+      <AnimatePresence initial={false}>
+        {mode === "edit" ? (
+          <motion.div
+            key="edit"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="overflow-hidden"
+          >
+            <EditIngredientForm tenantId={tenantId} slug={slug} ingredient={ingredient} onDone={onDone} />
+          </motion.div>
+        ) : null}
+        {mode === "stock" ? (
+          <motion.div
+            key="stock"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="overflow-hidden"
+          >
+            <StockMovementForm tenantId={tenantId} slug={slug} ingredient={ingredient} onDone={onDone} />
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </li>
   );
 }
@@ -342,9 +361,12 @@ export function IngredientManager({ tenantId, slug, currency, ingredients }: { t
         {ingredients.length === 0 ? (
           <p className="text-sm text-muted-foreground">No ingredients yet — add your first one above.</p>
         ) : (
-          <ul className="divide-y">
-            {ingredients.map((ingredient) => (
-              <IngredientRowItem key={ingredient.id} tenantId={tenantId} slug={slug} currency={currency} ingredient={ingredient} />
+          <ul className="flex flex-col">
+            {ingredients.map((ingredient, i) => (
+              <React.Fragment key={ingredient.id}>
+                {i > 0 ? <Separator /> : null}
+                <IngredientRowItem tenantId={tenantId} slug={slug} currency={currency} ingredient={ingredient} />
+              </React.Fragment>
             ))}
           </ul>
         )}

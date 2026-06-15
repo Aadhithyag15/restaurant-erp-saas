@@ -32,12 +32,12 @@ export const TRANSACTION_TYPE_LABELS: Record<InventoryTransactionType, string> =
   sale: "Sale",
 };
 
-export const TRANSACTION_TYPE_BADGE_CLASS: Record<InventoryTransactionType, string> = {
-  purchase: "bg-success/15 text-success",
-  waste: "bg-destructive/10 text-destructive",
-  adjustment: "bg-secondary text-secondary-foreground",
-  correction: "bg-warning/15 text-warning",
-  sale: "border border-input text-muted-foreground",
+export const TRANSACTION_TYPE_BADGE_VARIANT: Record<InventoryTransactionType, "success" | "destructive" | "secondary" | "warning" | "outline"> = {
+  purchase: "success",
+  waste: "destructive",
+  adjustment: "secondary",
+  correction: "warning",
+  sale: "outline",
 };
 
 export const MAX_QUANTITY = 999_999.999;

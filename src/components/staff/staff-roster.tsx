@@ -1,7 +1,10 @@
 "use client";
 
+import * as React from "react";
 import { Trash2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { removeMembership, setMembershipActive } from "@/lib/actions/staff";
 import { ROLE_LABELS } from "@/lib/staff";
 import type { MemberRole } from "@/types/database";
@@ -30,8 +33,8 @@ export function StaffRoster({
   const canRemove = viewerRole === "owner";
 
   return (
-    <ul className="divide-y">
-      {members.map((m) => {
+    <ul className="flex flex-col">
+      {members.map((m, i) => {
         // Owner rows can only be managed by an owner; nobody can act on their own row
         // (mirrors the memberships_update / memberships_delete RLS guards).
         const escalationLocked = m.role === "owner" && viewerRole !== "owner";
@@ -42,50 +45,47 @@ export function StaffRoster({
         const displayName = m.fullName || m.email || "Unnamed";
 
         return (
-          <li key={m.id} className="flex items-center justify-between gap-2 py-3">
-            <div className="min-w-0">
-              <p className="truncate text-sm font-medium">
-                {displayName} {m.isSelf ? <span className="text-muted-foreground">(you)</span> : null}
-              </p>
-              <p className="truncate text-xs text-muted-foreground">{m.email}</p>
-            </div>
-            <div className="flex shrink-0 items-center gap-2">
-              <span className="rounded-full border px-2 py-0.5 text-xs uppercase tracking-wide text-muted-foreground">
-                {ROLE_LABELS[m.role]}
-              </span>
-              {!m.isActive ? (
-                <span className="rounded-full border border-destructive/30 bg-destructive/10 px-2 py-0.5 text-xs text-destructive">
-                  Disabled
-                </span>
-              ) : null}
-              {canToggle ? (
-                <form action={toggleAction}>
-                  <Button type="submit" variant="ghost" size="sm">
-                    {m.isActive ? "Disable" : "Enable"}
-                  </Button>
-                </form>
-              ) : null}
-              {canDelete ? (
-                <form
-                  action={removeAction}
-                  onSubmit={(e) => {
-                    if (!window.confirm(`Remove ${displayName} from the team? This cannot be undone.`)) e.preventDefault();
-                  }}
-                >
-                  <Button
-                    type="submit"
-                    variant="ghost"
-                    size="icon"
-                    className="text-destructive hover:text-destructive"
-                    aria-label={`Remove ${displayName}`}
-                    title="Remove from team"
+          <React.Fragment key={m.id}>
+            {i > 0 ? <Separator /> : null}
+            <li className="flex items-center justify-between gap-3 rounded-lg px-2 py-3 transition-colors hover:bg-accent/50">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium">
+                  {displayName} {m.isSelf ? <span className="text-muted-foreground">(you)</span> : null}
+                </p>
+                <p className="truncate text-xs text-muted-foreground">{m.email}</p>
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
+                <Badge variant="outline">{ROLE_LABELS[m.role]}</Badge>
+                {!m.isActive ? <Badge variant="destructive">Disabled</Badge> : null}
+                {canToggle ? (
+                  <form action={toggleAction}>
+                    <Button type="submit" variant="ghost" size="sm">
+                      {m.isActive ? "Disable" : "Enable"}
+                    </Button>
+                  </form>
+                ) : null}
+                {canDelete ? (
+                  <form
+                    action={removeAction}
+                    onSubmit={(e) => {
+                      if (!window.confirm(`Remove ${displayName} from the team? This cannot be undone.`)) e.preventDefault();
+                    }}
                   >
-                    <Trash2 aria-hidden />
-                  </Button>
-                </form>
-              ) : null}
-            </div>
-          </li>
+                    <Button
+                      type="submit"
+                      variant="ghost"
+                      size="icon"
+                      className="text-destructive hover:text-destructive"
+                      aria-label={`Remove ${displayName}`}
+                      title="Remove from team"
+                    >
+                      <Trash2 aria-hidden />
+                    </Button>
+                  </form>
+                ) : null}
+              </div>
+            </li>
+          </React.Fragment>
         );
       })}
     </ul>

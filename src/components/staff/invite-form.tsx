@@ -18,7 +18,7 @@ export function InviteForm({ tenantId, slug }: { tenantId: string; slug: string 
   }, [state]);
 
   return (
-    <form ref={formRef} action={formAction} className="flex flex-col gap-3 sm:flex-row sm:items-end">
+    <form ref={formRef} action={formAction} className="flex flex-col gap-4 rounded-lg border bg-secondary/20 p-4 sm:flex-row sm:items-end sm:gap-3">
       {state?.error ? (
         <p role="alert" className="text-sm text-destructive sm:order-last sm:basis-full">
           {state.error}
@@ -34,7 +34,7 @@ export function InviteForm({ tenantId, slug }: { tenantId: string; slug: string 
           id="invite-role"
           name="role"
           defaultValue="cashier"
-          className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
           {INVITABLE_ROLES.map((role) => (
             <option key={role} value={role}>

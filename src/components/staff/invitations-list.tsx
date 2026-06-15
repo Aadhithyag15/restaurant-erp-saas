@@ -2,7 +2,9 @@
 
 import * as React from "react";
 import { Check, Copy, RotateCw, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { resendInvitation, revokeInvitation } from "@/lib/actions/staff";
 import { ROLE_LABELS } from "@/lib/staff";
 import type { MemberRole } from "@/types/database";
@@ -49,51 +51,50 @@ export function InvitationsList({
   origin: string;
 }) {
   return (
-    <ul className="divide-y">
-      {invitations.map((inv) => {
+    <ul className="flex flex-col">
+      {invitations.map((inv, i) => {
         const expired = new Date(inv.expires_at).getTime() < Date.now();
         const resendAction = resendInvitation.bind(null, tenantId, slug, inv.id);
         const revokeAction = revokeInvitation.bind(null, tenantId, slug, inv.id);
 
         return (
-          <li key={inv.id} className="flex flex-col gap-1 py-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="min-w-0">
-              <p className="truncate text-sm font-medium">{inv.email}</p>
-              <p className="text-xs text-muted-foreground">
-                {ROLE_LABELS[inv.role]} ·{" "}
-                {expired ? (
-                  <span className="text-destructive">Expired</span>
-                ) : (
-                  `Expires ${new Date(inv.expires_at).toLocaleDateString()}`
-                )}
-              </p>
-            </div>
-            <div className="flex shrink-0 items-center gap-1">
-              <CopyLinkButton origin={origin} token={inv.token} />
-              <form action={resendAction}>
-                <Button type="submit" variant="ghost" size="icon" aria-label={`Resend invite to ${inv.email}`} title="Resend invite">
-                  <RotateCw aria-hidden />
-                </Button>
-              </form>
-              <form
-                action={revokeAction}
-                onSubmit={(e) => {
-                  if (!window.confirm(`Revoke the invitation to ${inv.email}?`)) e.preventDefault();
-                }}
-              >
-                <Button
-                  type="submit"
-                  variant="ghost"
-                  size="icon"
-                  className="text-destructive hover:text-destructive"
-                  aria-label={`Revoke invite to ${inv.email}`}
-                  title="Revoke invite"
+          <React.Fragment key={inv.id}>
+            {i > 0 ? <Separator /> : null}
+            <li className="flex flex-col gap-2 rounded-lg px-2 py-3 transition-colors hover:bg-accent/50 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium">{inv.email}</p>
+                <div className="mt-1 flex items-center gap-2 text-xs text-muted-foreground">
+                  <Badge variant="outline">{ROLE_LABELS[inv.role]}</Badge>
+                  {expired ? <Badge variant="destructive">Expired</Badge> : <span>Expires {new Date(inv.expires_at).toLocaleDateString()}</span>}
+                </div>
+              </div>
+              <div className="flex shrink-0 items-center gap-1">
+                <CopyLinkButton origin={origin} token={inv.token} />
+                <form action={resendAction}>
+                  <Button type="submit" variant="ghost" size="icon" aria-label={`Resend invite to ${inv.email}`} title="Resend invite">
+                    <RotateCw aria-hidden />
+                  </Button>
+                </form>
+                <form
+                  action={revokeAction}
+                  onSubmit={(e) => {
+                    if (!window.confirm(`Revoke the invitation to ${inv.email}?`)) e.preventDefault();
+                  }}
                 >
-                  <X aria-hidden />
-                </Button>
-              </form>
-            </div>
-          </li>
+                  <Button
+                    type="submit"
+                    variant="ghost"
+                    size="icon"
+                    className="text-destructive hover:text-destructive"
+                    aria-label={`Revoke invite to ${inv.email}`}
+                    title="Revoke invite"
+                  >
+                    <X aria-hidden />
+                  </Button>
+                </form>
+              </div>
+            </li>
+          </React.Fragment>
         );
       })}
     </ul>

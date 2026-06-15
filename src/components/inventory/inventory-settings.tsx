@@ -26,19 +26,23 @@ export function InventorySettings({ tenantId, slug, allowNegativeStock }: { tena
         <CardDescription>Owner/admin only.</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-2">
-        <label className="flex items-start gap-2 text-sm">
-          <input
-            type="checkbox"
-            defaultChecked={allowNegativeStock}
-            disabled={pending}
-            onChange={(e) => onChange(e.target.checked)}
-            className="mt-0.5 size-4 accent-primary"
-          />
-          <span>
-            Allow stock to go negative
-            <span className="block text-xs text-muted-foreground">
+        <label className="flex items-center justify-between gap-4 rounded-lg border bg-secondary/20 p-3 transition-colors hover:bg-accent/50">
+          <span className="flex flex-col gap-0.5">
+            <span className="text-sm font-medium">Allow stock to go negative</span>
+            <span className="text-xs text-muted-foreground">
               When off (default), placing a POS order that would deplete an ingredient below zero is rejected.
             </span>
+          </span>
+          <span className="relative inline-flex shrink-0 items-center">
+            <input
+              type="checkbox"
+              defaultChecked={allowNegativeStock}
+              disabled={pending}
+              onChange={(e) => onChange(e.target.checked)}
+              className="peer sr-only"
+            />
+            <span className="h-6 w-10 rounded-full bg-input transition-colors peer-checked:bg-primary peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 peer-disabled:opacity-50" />
+            <span className="pointer-events-none absolute left-0.5 size-5 rounded-full bg-background shadow-[var(--shadow-sm)] transition-transform peer-checked:translate-x-4" />
           </span>
         </label>
         {error ? (
