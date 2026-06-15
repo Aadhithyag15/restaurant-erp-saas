@@ -43,7 +43,7 @@ export async function signup(formData: FormData) {
   if (password.length < 8) back("/signup", { error: "Password must be at least 8 characters." });
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
@@ -52,6 +52,14 @@ export async function signup(formData: FormData) {
     },
   });
   if (error) back("/signup", { error: "Could not create the account. Try again or use a different email." });
+
+  // Email confirmations are disabled, so signUp() returns an active session
+  // immediately — sign the user straight in instead of asking them to check
+  // their email.
+  if (data.session) {
+    revalidatePath("/", "layout");
+    redirect(next ?? "/go");
+  }
 
   back("/login", { message: "Check your email to confirm your account, then sign in.", ...(next ? { next } : {}) });
 }
