@@ -189,7 +189,7 @@ function ItemRow({
   }
 
   return (
-    <li className="flex flex-wrap items-center gap-x-4 gap-y-2 py-3">
+    <li className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg px-2 py-3 transition-colors hover:bg-accent/50">
       <div className="min-w-0 flex-1 basis-48">
         <p className="flex items-center gap-2 text-sm font-medium">
           <VegMark isVeg={item.is_veg} />

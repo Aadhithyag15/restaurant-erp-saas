@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { ExpiredGate } from "@/components/app/expired-gate";
 import { Sidebar } from "@/components/app/sidebar";
 import { TrialBanner } from "@/components/app/trial-banner";
+import { PageTransition } from "@/components/motion/page-transition";
 import { deriveLicense } from "@/lib/license";
 import { createClient } from "@/lib/supabase/server";
 
@@ -66,7 +67,7 @@ export default async function TenantLayout({
         <TrialBanner license={license} slug={tenant.slug} role={membership.role} />
         <main className="flex-1 p-4 print:p-0 md:p-8">
           <ExpiredGate expired={!license.isActive} slug={tenant.slug} role={membership.role}>
-            {children}
+            <PageTransition>{children}</PageTransition>
           </ExpiredGate>
         </main>
       </div>

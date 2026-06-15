@@ -55,7 +55,7 @@ export default async function ReceiptPage({ params }: { params: Promise<{ tenant
   return (
     <div className="flex flex-col items-center gap-4">
       <div className="flex w-full max-w-sm items-center justify-between print:hidden">
-        <Link href={`/${slug}/orders/${order.id}`} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+        <Link href={`/${slug}/orders/${order.id}`} className="flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground">
           <ArrowLeft className="size-4" aria-hidden />
           Back to order
         </Link>

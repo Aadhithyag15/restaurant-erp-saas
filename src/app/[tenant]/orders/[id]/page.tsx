@@ -64,7 +64,7 @@ export default async function OrderDetailsPage({ params }: { params: Promise<{ t
     <div className="flex max-w-3xl flex-col gap-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <Link href={`/${slug}/orders`} className="mb-1 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+          <Link href={`/${slug}/orders`} className="mb-1 flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground">
             <ArrowLeft className="size-4" aria-hidden />
             Orders
           </Link>

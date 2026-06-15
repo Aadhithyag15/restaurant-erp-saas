@@ -70,7 +70,7 @@ function CategoryRow({ tenantId, slug, category }: { tenantId: string; slug: str
   }
 
   return (
-    <li className="flex items-center justify-between gap-2 py-2">
+    <li className="flex items-center justify-between gap-2 rounded-lg px-2 py-2 transition-colors hover:bg-accent/50">
       <span className="min-w-0 truncate text-sm font-medium">{category.name}</span>
       <span className="flex shrink-0 items-center gap-1">
         <Button type="button" size="icon" variant="ghost" onClick={() => setEditing(true)} aria-label={`Rename ${category.name}`}>
