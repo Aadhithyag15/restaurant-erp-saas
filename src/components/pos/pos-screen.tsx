@@ -64,7 +64,7 @@ function CartPanel({
     if (lastOrder) {
       return (
         <div className="flex flex-col items-center gap-3 px-1 py-6 text-center">
-          <CheckCircle2 className="size-8 text-green-600" aria-hidden />
+          <CheckCircle2 className="size-8 text-success" aria-hidden />
           <div>
             <p className="text-base font-semibold">Order #{lastOrder.orderNumber} placed</p>
             <p className="text-sm text-muted-foreground">Sent to the kitchen.</p>
