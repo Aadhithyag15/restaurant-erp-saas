@@ -8,6 +8,10 @@ node_modules/
 # Next.js build files
 .next/
 
+# Cloudflare (OpenNext) build output
+.open-next/
+.wrangler/
+
 # TypeScript build files
 tsconfig.tsbuildinfo
 next-env.d.ts

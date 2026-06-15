@@ -10,7 +10,11 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
+    "verify": "npm run lint && npm run typecheck && npm run test && npm run build",
+    "check:env": "node scripts/check-env.mjs",
+    "prepreview": "npm run check:env",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "predeploy": "npm run check:env && npm run verify",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy"
   },
   "dependencies": {

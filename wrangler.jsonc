@@ -9,5 +9,11 @@
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
+  },
+  // Enables Workers Logs (request/console logs in the dashboard) — the main
+  // way to see server errors in production since there's no separate log
+  // shipping configured. Free on all plans.
+  "observability": {
+    "enabled": true
   }
 }
