@@ -1,7 +1,9 @@
 "use client";
 
 import * as React from "react";
+import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
 import { Clock, Soup, UtensilsCrossed } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { VegMark } from "@/components/menu/veg-mark";
@@ -28,11 +30,18 @@ type OrderRow = Database["public"]["Tables"]["orders"]["Row"];
 
 const OPEN_STATUSES: OrderStatus[] = ["pending", "preparing", "ready"];
 
-const COLUMNS: { status: OrderStatus; label: string }[] = [
-  { status: "pending", label: "New" },
-  { status: "preparing", label: "Preparing" },
-  { status: "ready", label: "Ready" },
+const COLUMNS: { status: OrderStatus; label: string; accent: string; icon: typeof Soup }[] = [
+  { status: "pending", label: "New", accent: "text-warning", icon: Soup },
+  { status: "preparing", label: "Preparing", accent: "text-primary", icon: UtensilsCrossed },
+  { status: "ready", label: "Ready", accent: "text-success", icon: UtensilsCrossed },
 ];
+
+const COLUMN_ACCENT_BORDER: Record<OrderStatus, string> = {
+  pending: "border-l-warning",
+  preparing: "border-l-primary",
+  ready: "border-l-success",
+  served: "border-l-muted-foreground/30",
+};
 
 const NEXT_STATUS: Record<OrderStatus, OrderStatus | null> = {
   pending: "preparing",
@@ -48,21 +57,36 @@ const ACTION_LABEL: Record<OrderStatus, string> = {
   served: "",
 };
 
-/** Live "Xm ago" label; renders empty on the server/first paint to avoid hydration drift. */
-function useElapsedLabel(since: string): string {
-  const [label, setLabel] = React.useState("");
+type Urgency = "ok" | "warn" | "late";
+
+const URGENCY_BADGE: Record<Urgency, { label: string; variant: "secondary" | "warning" | "destructive" }> = {
+  ok: { label: "New", variant: "secondary" },
+  warn: { label: "Attention", variant: "warning" },
+  late: { label: "Late", variant: "destructive" },
+};
+
+const URGENCY_RING: Record<Urgency, string> = {
+  ok: "",
+  warn: "ring-1 ring-warning/40",
+  late: "ring-2 ring-destructive/50",
+};
+
+/** Live "Xm ago" label + urgency tier; renders empty/"ok" on the server/first paint to avoid hydration drift. */
+function useElapsed(since: string): { label: string; urgency: Urgency } {
+  const [state, setState] = React.useState<{ label: string; urgency: Urgency }>({ label: "", urgency: "ok" });
 
   React.useEffect(() => {
     const update = () => {
       const minutes = Math.max(0, Math.floor((Date.now() - new Date(since).getTime()) / 60000));
-      setLabel(minutes < 1 ? "just now" : `${minutes}m ago`);
+      const urgency: Urgency = minutes >= 20 ? "late" : minutes >= 10 ? "warn" : "ok";
+      setState({ label: minutes < 1 ? "just now" : `${minutes}m ago`, urgency });
     };
     update();
     const interval = setInterval(update, 30_000);
     return () => clearInterval(interval);
   }, [since]);
 
-  return label;
+  return state;
 }
 
 function OrderCard({
@@ -76,19 +100,23 @@ function OrderCard({
   error: string | null;
   onAdvance: (order: KotOrder) => void;
 }) {
-  const elapsed = useElapsedLabel(order.status === "pending" ? order.createdAt : order.statusUpdatedAt);
+  const { label: elapsed, urgency } = useElapsed(order.status === "pending" ? order.createdAt : order.statusUpdatedAt);
   const nextStatus = NEXT_STATUS[order.status];
+  const badge = URGENCY_BADGE[urgency];
 
   return (
-    <Card className={cn(order.status === "ready" && "border-success")}>
+    <Card className={cn("border-l-4", COLUMN_ACCENT_BORDER[order.status], URGENCY_RING[urgency])}>
       <CardHeader className="flex-row items-center justify-between gap-2 space-y-0 pb-2">
-        <CardTitle className="text-base">Order #{order.orderNumber}</CardTitle>
-        {elapsed ? (
-          <span className="flex items-center gap-1 text-xs text-muted-foreground">
-            <Clock className="size-3" aria-hidden />
-            {elapsed}
-          </span>
-        ) : null}
+        <CardTitle className="font-mono text-base">#{order.orderNumber}</CardTitle>
+        <div className="flex items-center gap-2">
+          {elapsed ? (
+            <span className="flex items-center gap-1 font-mono text-xs text-muted-foreground">
+              <Clock className="size-3" aria-hidden />
+              {elapsed}
+            </span>
+          ) : null}
+          {elapsed && urgency !== "ok" ? <Badge variant={badge.variant}>{badge.label}</Badge> : null}
+        </div>
       </CardHeader>
       <CardContent className="flex flex-col gap-3">
         {order.customerName || order.source !== "walk_in" ? (
@@ -102,7 +130,7 @@ function OrderCard({
         <ul className="flex flex-col gap-1.5">
           {order.items.map((item) => (
             <li key={item.id} className="flex items-start gap-2 text-sm">
-              <span className="w-8 shrink-0 font-semibold tabular-nums">{item.qty}×</span>
+              <span className="w-8 shrink-0 font-mono font-semibold tabular-nums">{item.qty}×</span>
               <VegMark isVeg={item.isVeg} className="mt-0.5" />
               <span className="min-w-0 flex-1">{item.name}</span>
             </li>
@@ -241,32 +269,51 @@ export function KitchenScreen({ tenantId, initialOrders }: { tenantId: string; i
       </div>
 
       {hasOrders ? (
-        <div className="grid gap-4 md:grid-cols-3">
-          {COLUMNS.map((column) => {
-            const columnOrders = orders
-              .filter((o) => o.status === column.status)
-              .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+        <LayoutGroup>
+          <div className="grid gap-4 md:grid-cols-3">
+            {COLUMNS.map((column) => {
+              const columnOrders = orders
+                .filter((o) => o.status === column.status)
+                .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+              const Icon = column.icon;
 
-            return (
-              <div key={column.status} className="flex flex-col gap-3">
-                <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                  {column.status === "pending" ? <Soup className="size-4" aria-hidden /> : <UtensilsCrossed className="size-4" aria-hidden />}
-                  {column.label}
-                  <span className="rounded-full bg-secondary px-2 py-0.5 text-xs font-medium text-secondary-foreground">{columnOrders.length}</span>
-                </h2>
-                <div className="flex flex-col gap-3">
-                  {columnOrders.length === 0 ? (
-                    <p className="rounded-lg border border-dashed px-3 py-6 text-center text-sm text-muted-foreground">No orders</p>
-                  ) : (
-                    columnOrders.map((order) => (
-                      <OrderCard key={order.id} order={order} busy={busyIds.has(order.id)} error={errors[order.id] ?? null} onAdvance={onAdvance} />
-                    ))
-                  )}
+              return (
+                <div key={column.status} className="flex flex-col gap-3">
+                  <div className="flex items-center justify-between rounded-lg border bg-muted/40 px-3 py-2">
+                    <h2 className={cn("flex items-center gap-2 text-sm font-semibold uppercase tracking-wide", column.accent)}>
+                      <Icon className="size-4" aria-hidden />
+                      {column.label}
+                    </h2>
+                    <span className="rounded-full bg-background px-2 py-0.5 font-mono text-xs font-medium text-foreground shadow-[var(--shadow-sm)]">
+                      {columnOrders.length}
+                    </span>
+                  </div>
+                  <div className="flex flex-col gap-3">
+                    {columnOrders.length === 0 ? (
+                      <p className="rounded-lg border border-dashed px-3 py-6 text-center text-sm text-muted-foreground">No orders</p>
+                    ) : (
+                      <AnimatePresence initial={false}>
+                        {columnOrders.map((order) => (
+                          <motion.div
+                            key={order.id}
+                            layoutId={order.id}
+                            layout
+                            initial={{ opacity: 0, scale: 0.96 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.96 }}
+                            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                          >
+                            <OrderCard order={order} busy={busyIds.has(order.id)} error={errors[order.id] ?? null} onAdvance={onAdvance} />
+                          </motion.div>
+                        ))}
+                      </AnimatePresence>
+                    )}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        </LayoutGroup>
       ) : (
         <Card className="flex flex-1 flex-col items-center justify-center py-16 text-center">
           <CardHeader>
