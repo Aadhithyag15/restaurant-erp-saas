@@ -28,3 +28,11 @@ export function localDayRangeUtc(dateStr: string, timeZone: string): { start: st
   const end = new Date(start.getTime() + 24 * 60 * 60 * 1000);
   return { start: start.toISOString(), end: end.toISOString() };
 }
+
+/** Returns the date (YYYY-MM-DD) `days` away from `dateStr`. Used to build day-by-day series. */
+export function shiftDateString(dateStr: string, days: number): string {
+  const [year, month, day] = dateStr.split("-").map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
+}

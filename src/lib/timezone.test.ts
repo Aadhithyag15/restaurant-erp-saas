@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { localDayRangeUtc, todayInTimeZone } from "@/lib/timezone";
+import { localDayRangeUtc, shiftDateString, todayInTimeZone } from "@/lib/timezone";
 
 describe("localDayRangeUtc", () => {
   it("computes the UTC range for a Kolkata (+5:30) calendar day", () => {
@@ -37,5 +37,19 @@ describe("todayInTimeZone", () => {
     // 23:00 UTC on June 13 is 04:30 IST on June 14
     const result = todayInTimeZone("Asia/Kolkata", new Date("2026-06-13T23:00:00Z"));
     expect(result).toBe("2026-06-14");
+  });
+});
+
+describe("shiftDateString", () => {
+  it("shifts backwards across a month boundary", () => {
+    expect(shiftDateString("2026-06-01", -1)).toBe("2026-05-31");
+  });
+
+  it("shifts forwards across a year boundary", () => {
+    expect(shiftDateString("2025-12-31", 1)).toBe("2026-01-01");
+  });
+
+  it("returns the same date for a zero shift", () => {
+    expect(shiftDateString("2026-06-14", 0)).toBe("2026-06-14");
   });
 });
