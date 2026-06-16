@@ -1,4 +1,4 @@
-# Restaurant ERP SaaS — Phase 1: Foundation & Architecture
+# Restaurant Flow SaaS — Phase 1: Foundation & Architecture
 
 > Status: awaiting founder approval before Phase 2.
 > Scope of this document: architecture, stack, tenancy, auth, RLS, licensing/trial, env, setup.

@@ -154,7 +154,7 @@ production, configure Resend SMTP and **re-enable email confirmation**.
    export SITE_URL=https://<your-production-url>
    export RESEND_API_KEY=<resend API key>
    export RESEND_SENDER_EMAIL=noreply@<your-verified-domain>
-   export RESEND_SENDER_NAME="Restaurant ERP"   # optional, this is the default
+   export RESEND_SENDER_NAME="Restaurant Flow"   # optional, this is the default
 
    node scripts/configure-supabase-auth.mjs            # dry run — review the diff
    node scripts/configure-supabase-auth.mjs --apply    # applies via Management API

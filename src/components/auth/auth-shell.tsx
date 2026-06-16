@@ -15,7 +15,7 @@ export function AuthShell({
     <div className="flex min-h-dvh flex-col items-center justify-center gap-6 bg-secondary/50 px-4 py-10">
       <Link href="/" className="flex items-center gap-2 font-semibold">
         <UtensilsCrossed className="size-5" aria-hidden />
-        Restaurant ERP
+        Restaurant Flow
       </Link>
       <Card className="w-full max-w-sm">
         <CardHeader>

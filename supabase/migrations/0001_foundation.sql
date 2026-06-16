@@ -1,5 +1,5 @@
 -- ============================================================================
--- Restaurant ERP SaaS — Phase 1 foundation (rev 2, post security review)
+-- Restaurant Flow SaaS — Phase 1 foundation (rev 2, post security review)
 -- Multi-tenancy, auth profiles, roles, licensing (14-day trial), audit log.
 -- Run in the Supabase SQL editor (or `supabase db push`).
 -- Postgres 15+ / Supabase conventions (auth.uid(), auth.users).

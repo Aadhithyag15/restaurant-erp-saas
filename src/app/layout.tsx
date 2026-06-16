@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: { default: "Restaurant ERP", template: "%s · Restaurant ERP" },
+  title: { default: "Restaurant Flow", template: "%s · Restaurant Flow" },
   description: "POS, kitchen, inventory and accounting for restaurants — in one place.",
 };
 

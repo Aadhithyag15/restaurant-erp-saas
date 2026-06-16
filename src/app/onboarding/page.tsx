@@ -27,7 +27,7 @@ export default async function OnboardingPage() {
     <div className="flex min-h-dvh flex-col items-center justify-center gap-6 bg-secondary/50 px-4 py-10">
       <div className="flex items-center gap-2 font-semibold">
         <UtensilsCrossed className="size-5" aria-hidden />
-        Restaurant ERP
+        Restaurant Flow
       </div>
       <Card className="w-full max-w-md">
         <CardHeader>

@@ -9,7 +9,7 @@ export default function LandingPage() {
       <header className="flex items-center justify-between border-b px-6 py-4">
         <div className="flex items-center gap-2 font-semibold">
           <UtensilsCrossed className="size-5" aria-hidden />
-          Restaurant ERP
+          Restaurant Flow
         </div>
         <nav className="flex items-center gap-2">
           <Button variant="ghost" asChild>

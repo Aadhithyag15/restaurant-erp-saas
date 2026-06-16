@@ -1,6 +1,6 @@
-# Restaurant ERP
+# Restaurant Flow
 
-Multi-tenant restaurant ERP SaaS — POS, KOT, inventory, SKUs and accounting, licensed with a
+Multi-tenant restaurant management SaaS — POS, KOT, inventory, SKUs and accounting, licensed with a
 14-day free trial. Next.js 15 + Supabase, deployed on Cloudflare's free tier.
 
 - Architecture & phase plan: [docs/phase1-architecture.md](docs/phase1-architecture.md)

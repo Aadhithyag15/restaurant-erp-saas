@@ -17,7 +17,7 @@
 //                           (the domain must be verified in Resend → Domains)
 //
 // Optional env vars:
-//   RESEND_SENDER_NAME      Defaults to "Restaurant ERP"
+//   RESEND_SENDER_NAME      Defaults to "Restaurant Flow"
 //   EXTRA_REDIRECT_URLS     Comma-separated extra redirect URLs to allow,
 //                           in addition to "<SITE_URL>/auth/callback" and
 //                           "<SITE_URL>/**"
@@ -44,7 +44,7 @@ const {
   SITE_URL,
   RESEND_API_KEY,
   RESEND_SENDER_EMAIL,
-  RESEND_SENDER_NAME = "Restaurant ERP",
+  RESEND_SENDER_NAME = "Restaurant Flow",
   EXTRA_REDIRECT_URLS = "",
   ENABLE_EMAIL_CONFIRMATION = "true",
 } = process.env;
